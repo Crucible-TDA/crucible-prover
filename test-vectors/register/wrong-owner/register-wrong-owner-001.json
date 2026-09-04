@@ -1,0 +1,24 @@
+{
+  "id": "register-wrong-owner-001",
+  "operation": "register",
+  "category": "wrong-owner",
+  "description": "The public address belongs to key 0x5678 but the witness secret is 0x1234: the ownership assertion key_hash(account_sk) == account_address is unsatisfiable.",
+  "circuit": "register",
+  "circuit_version": "0.1.0",
+  "witness": {
+    "operation": "register",
+    "private": {
+      "account_sk": "1234"
+    },
+    "public": {
+      "entries": [
+        ["account_address", "1ce5e69979131d8a3a1e3aa8ce0e39ce0f0e17b3de32aed85907b1adfa7a8e22"]
+      ]
+    }
+  },
+  "expected_public_outputs": {
+    "entries": []
+  },
+  "state_reference": null,
+  "expect_verification": false
+}

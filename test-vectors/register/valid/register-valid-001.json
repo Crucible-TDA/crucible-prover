@@ -1,0 +1,24 @@
+{
+  "id": "register-valid-001",
+  "operation": "register",
+  "category": "valid",
+  "description": "Account registration with the sample key 0x1234: the public address equals key_hash(account_sk), so the circuit's ownership assertion holds.",
+  "circuit": "register",
+  "circuit_version": "0.1.0",
+  "witness": {
+    "operation": "register",
+    "private": {
+      "account_sk": "1234"
+    },
+    "public": {
+      "entries": [
+        ["account_address", "6871944eb38ea75866d42609302692a55e12cf7620a50f2cf03381b9b382b72"]
+      ]
+    }
+  },
+  "expected_public_outputs": {
+    "entries": []
+  },
+  "state_reference": null,
+  "expect_verification": true
+}

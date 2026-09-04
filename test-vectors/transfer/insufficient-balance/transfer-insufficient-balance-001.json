@@ -1,0 +1,36 @@
+{
+  "id": "transfer-insufficient-balance-001",
+  "operation": "transfer",
+  "category": "insufficient-balance",
+  "description": "The sender's commitment holds 1000 but the transfer amount is 2000: subtract_bounded rejects the overdraw, so the witness is unsatisfiable.",
+  "circuit": "transfer",
+  "circuit_version": "0.1.0",
+  "witness": {
+    "operation": "transfer",
+    "private": {
+      "sender_sk": "1234",
+      "amount": "7d0",
+      "old_amount": "3e8",
+      "old_blinding": "5",
+      "recipient_blinding": "11",
+      "change_blinding": "8"
+    },
+    "public": {
+      "entries": [
+        ["token_address", "746f6b656e"],
+        ["sender_address", "6871944eb38ea75866d42609302692a55e12cf7620a50f2cf03381b9b382b72"],
+        ["recipient_address", "1ce5e69979131d8a3a1e3aa8ce0e39ce0f0e17b3de32aed85907b1adfa7a8e22"],
+        ["old_sender_commitment", "76db33552d93aa30f635808d1ca29a8e03dd1f5f396bf2caf7df85a8038e2d0"]
+      ]
+    }
+  },
+  "expected_public_outputs": {
+    "entries": []
+  },
+  "state_reference": {
+    "root": "abababababababababababababababababababababababababababababababab",
+    "sequence": 1,
+    "label": "transfer-insufficient-balance-001"
+  },
+  "expect_verification": false
+}

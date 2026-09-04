@@ -1,0 +1,37 @@
+{
+  "id": "deposit-valid-001",
+  "operation": "deposit",
+  "category": "valid",
+  "description": "Deposit 500 into a commitment holding 1000 (sample key 0x1234, token 0x746f6b656e). Consumes commit(1000,5) and produces commit(1500,9) plus a token-bound nullifier.",
+  "circuit": "deposit",
+  "circuit_version": "0.1.0",
+  "witness": {
+    "operation": "deposit",
+    "private": {
+      "account_sk": "1234",
+      "old_amount": "3e8",
+      "old_blinding": "5",
+      "amount": "1f4",
+      "blinding": "9"
+    },
+    "public": {
+      "entries": [
+        ["token_address", "746f6b656e"],
+        ["account_address", "6871944eb38ea75866d42609302692a55e12cf7620a50f2cf03381b9b382b72"],
+        ["old_commitment", "76db33552d93aa30f635808d1ca29a8e03dd1f5f396bf2caf7df85a8038e2d0"]
+      ]
+    }
+  },
+  "expected_public_outputs": {
+    "entries": [
+      ["new_commitment", "2ada0e1d82b51171a820c69368c30cba60b0bfec8537ef5b84d09f99ed50dce9"],
+      ["nullifier", "2c90bd0611da2c636e3c6c872866e363641a0ed7c3e063384311fa2add839740"]
+    ]
+  },
+  "state_reference": {
+    "root": "abababababababababababababababababababababababababababababababab",
+    "sequence": 1,
+    "label": "deposit-valid-001"
+  },
+  "expect_verification": true
+}

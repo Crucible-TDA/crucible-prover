@@ -1,0 +1,36 @@
+{
+  "id": "merge-opening-mismatch-001",
+  "operation": "merge",
+  "category": "invalid",
+  "description": "commitment_a opens to (600, 7) but the witness claims amount_a = 601: one consumed commitment cannot be opened, so the transition is unsatisfiable.",
+  "circuit": "merge",
+  "circuit_version": "0.1.0",
+  "witness": {
+    "operation": "merge",
+    "private": {
+      "account_sk": "1234",
+      "amount_a": "259",
+      "blinding_a": "7",
+      "amount_b": "190",
+      "blinding_b": "b",
+      "blinding": "d"
+    },
+    "public": {
+      "entries": [
+        ["token_address", "746f6b656e"],
+        ["account_address", "6871944eb38ea75866d42609302692a55e12cf7620a50f2cf03381b9b382b72"],
+        ["commitment_a", "22d65fc0a742e81765ede19037e57c52b9ae01921361194102045f2b54fac59a"],
+        ["commitment_b", "24fc5ed222d5e3fc7d22988b6ec8b08160f1b001235cd463ee5fd692fe91e752"]
+      ]
+    }
+  },
+  "expected_public_outputs": {
+    "entries": []
+  },
+  "state_reference": {
+    "root": "abababababababababababababababababababababababababababababababab",
+    "sequence": 1,
+    "label": "merge-opening-mismatch-001"
+  },
+  "expect_verification": false
+}

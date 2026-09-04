@@ -1,0 +1,40 @@
+{
+  "id": "merge-valid-001",
+  "operation": "merge",
+  "category": "valid",
+  "description": "Merge commit(600,7) and commit(400,11) under the sample key 0x1234 (token 0x746f6b656e) into commit(1000,13). Emits two token-bound nullifiers.",
+  "circuit": "merge",
+  "circuit_version": "0.1.0",
+  "witness": {
+    "operation": "merge",
+    "private": {
+      "account_sk": "1234",
+      "amount_a": "258",
+      "blinding_a": "7",
+      "amount_b": "190",
+      "blinding_b": "b",
+      "blinding": "d"
+    },
+    "public": {
+      "entries": [
+        ["token_address", "746f6b656e"],
+        ["account_address", "6871944eb38ea75866d42609302692a55e12cf7620a50f2cf03381b9b382b72"],
+        ["commitment_a", "22d65fc0a742e81765ede19037e57c52b9ae01921361194102045f2b54fac59a"],
+        ["commitment_b", "24fc5ed222d5e3fc7d22988b6ec8b08160f1b001235cd463ee5fd692fe91e752"]
+      ]
+    }
+  },
+  "expected_public_outputs": {
+    "entries": [
+      ["merged_commitment", "2f2a44c5b5107b885cef4a97cc6a2963922745d66d22951fa931457663c3e0d2"],
+      ["nullifier_a", "11a3cdbc9a47f2d65275ba1b0a69e716c4b2cf0f95e85cd178228f169594f593"],
+      ["nullifier_b", "10c1dfce8654e7b14a49dbe50b416ee90868892708deee4d06cf440feb762bc5"]
+    ]
+  },
+  "state_reference": {
+    "root": "abababababababababababababababababababababababababababababababab",
+    "sequence": 1,
+    "label": "merge-valid-001"
+  },
+  "expect_verification": true
+}

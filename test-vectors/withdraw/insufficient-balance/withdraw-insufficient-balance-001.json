@@ -1,0 +1,34 @@
+{
+  "id": "withdraw-insufficient-balance-001",
+  "operation": "withdraw",
+  "category": "insufficient-balance",
+  "description": "The commitment holds 1000 but the withdrawal amount is 2000: subtract_bounded rejects the overdraw, so the witness is unsatisfiable.",
+  "circuit": "withdraw",
+  "circuit_version": "0.1.0",
+  "witness": {
+    "operation": "withdraw",
+    "private": {
+      "account_sk": "1234",
+      "amount": "7d0",
+      "old_amount": "3e8",
+      "old_blinding": "5",
+      "change_blinding": "8"
+    },
+    "public": {
+      "entries": [
+        ["token_address", "746f6b656e"],
+        ["account_address", "6871944eb38ea75866d42609302692a55e12cf7620a50f2cf03381b9b382b72"],
+        ["commitment", "76db33552d93aa30f635808d1ca29a8e03dd1f5f396bf2caf7df85a8038e2d0"]
+      ]
+    }
+  },
+  "expected_public_outputs": {
+    "entries": []
+  },
+  "state_reference": {
+    "root": "abababababababababababababababababababababababababababababababab",
+    "sequence": 1,
+    "label": "withdraw-insufficient-balance-001"
+  },
+  "expect_verification": false
+}

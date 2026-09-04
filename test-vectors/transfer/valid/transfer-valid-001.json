@@ -1,0 +1,40 @@
+{
+  "id": "transfer-valid-001",
+  "operation": "transfer",
+  "category": "valid",
+  "description": "Transfer 300 from sender key 0x1234 to recipient key 0x5678 (token 0x746f6b656e). Consumes sender's commit(1000,5); recipient gets commit(300,17), sender keeps commit(700,8) as change; emits a token-bound nullifier.",
+  "circuit": "transfer",
+  "circuit_version": "0.1.0",
+  "witness": {
+    "operation": "transfer",
+    "private": {
+      "sender_sk": "1234",
+      "amount": "12c",
+      "old_amount": "3e8",
+      "old_blinding": "5",
+      "recipient_blinding": "11",
+      "change_blinding": "8"
+    },
+    "public": {
+      "entries": [
+        ["token_address", "746f6b656e"],
+        ["sender_address", "6871944eb38ea75866d42609302692a55e12cf7620a50f2cf03381b9b382b72"],
+        ["recipient_address", "1ce5e69979131d8a3a1e3aa8ce0e39ce0f0e17b3de32aed85907b1adfa7a8e22"],
+        ["old_sender_commitment", "76db33552d93aa30f635808d1ca29a8e03dd1f5f396bf2caf7df85a8038e2d0"]
+      ]
+    }
+  },
+  "expected_public_outputs": {
+    "entries": [
+      ["recipient_commitment", "c15c2871d0487fac9d0a3e4132b1700c0247049e06ab34baca2b14ed68b5b6a"],
+      ["change_commitment", "1b98de4fa954312e6957dd3074011418e26385cd85fa8bd3a711a6c1d578063"],
+      ["nullifier", "2c90bd0611da2c636e3c6c872866e363641a0ed7c3e063384311fa2add839740"]
+    ]
+  },
+  "state_reference": {
+    "root": "abababababababababababababababababababababababababababababababab",
+    "sequence": 1,
+    "label": "transfer-valid-001"
+  },
+  "expect_verification": true
+}
