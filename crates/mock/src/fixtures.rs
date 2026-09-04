@@ -17,12 +17,12 @@ pub fn state_root_a() -> RootDigest {
 
 /// `root_hi` for [`state_root_a`] — the most significant 128 bits (`ab`*16).
 pub fn state_root_a_hi() -> &'static str {
-    "ababababababababababababababab"
+    "abababababababababababababababab"
 }
 
 /// `root_lo` for [`state_root_a`] — the least significant 128 bits (`ab`*16).
 pub fn state_root_a_lo() -> &'static str {
-    "ababababababababababababababab"
+    "abababababababababababababababab"
 }
 
 /// A second, distinct state root for stale-state tests.
