@@ -41,7 +41,7 @@ pub mod prover;
 pub mod verifier;
 
 pub use circuit::{
-    CircuitId, CircuitMetadata, FieldError, FieldValue, Operation, PrivateWitnessBag,
+    CircuitId, CircuitMetadata, FieldError, FieldValue, Operation, OutputBag, PrivateWitnessBag,
     PublicInputBag, SecretValue, Version,
 };
 pub use proof_provider::{

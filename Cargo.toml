@@ -1,7 +1,10 @@
 [workspace]
 resolver = "2"
-members = ["interfaces"]
-default-members = ["interfaces"]
+members = [
+    "interfaces",
+    "crates/proof-types",
+]
+default-members = ["interfaces", "crates/proof-types"]
 
 [workspace.package]
 version = "0.1.0"
