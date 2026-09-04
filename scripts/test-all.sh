@@ -15,6 +15,8 @@ if command -v nargo >/dev/null 2>&1; then
     (cd circuits && nargo test)
     echo "==> circuit test vectors"
     bash scripts/generate-test-vectors.sh
+    echo "==> cross-language vector runner (circuit tier)"
+    cargo test -p crucible-tests --test vectors
 else
     echo "nargo not on PATH; skipping circuit suites (see scripts/check-circuits.sh)." >&2
 fi
