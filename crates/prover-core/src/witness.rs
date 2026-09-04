@@ -14,44 +14,14 @@ use crucible_interfaces::{Operation, ProofRequest, PublicInputBag};
 /// `circuits/<op>/src/main.nr`): the values a prover must supply beyond the
 /// public context. Registration proves knowledge of an account secret;
 /// deposit/merge/transfer/withdraw prove knowledge of the secret(s) and the
-/// amounts/blindings guarding the commitments being moved. Keeping this list
-/// in lockstep with the circuits is what makes the policy a meaningful
-/// preflight: a request missing any of these names could never produce a
-/// satisfying witness, regardless of backend.
+/// amounts/blindings guarding the commitments being moved. The list itself
+/// lives in [`crucible_interfaces::circuit::expectations`] — the single
+/// source of truth shared with the real backend — and this module is the
+/// preflight policy that keeps the names out of the provider backends:
+/// a request missing any of these names could never produce a satisfying
+/// witness, regardless of backend.
 pub fn required_private_names(operation: Operation) -> &'static [&'static str] {
-    match operation {
-        Operation::Register => &["account_sk"],
-        Operation::Deposit => &[
-            "account_sk",
-            "old_amount",
-            "old_blinding",
-            "amount",
-            "blinding",
-        ],
-        Operation::Merge => &[
-            "account_sk",
-            "amount_a",
-            "blinding_a",
-            "amount_b",
-            "blinding_b",
-            "blinding",
-        ],
-        Operation::Transfer => &[
-            "sender_sk",
-            "amount",
-            "old_amount",
-            "old_blinding",
-            "recipient_blinding",
-            "change_blinding",
-        ],
-        Operation::Withdraw => &[
-            "account_sk",
-            "amount",
-            "old_amount",
-            "old_blinding",
-            "change_blinding",
-        ],
-    }
+    crucible_interfaces::circuit::private_names(operation)
 }
 
 /// Checks that `request` carries every private witness name its operation

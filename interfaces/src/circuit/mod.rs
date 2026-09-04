@@ -11,11 +11,13 @@
 // lint is not useful here; the nesting is intentional.
 #[allow(clippy::module_inception)]
 mod circuit;
+mod expectations;
 mod inputs;
 mod metadata;
 mod outputs;
 
 pub use circuit::{CircuitId, CircuitIdError, Operation, Version};
+pub use expectations::{CircuitExpectations, expectations, private_names};
 pub use inputs::{FieldError, FieldValue, PrivateWitnessBag, PublicInputBag, SecretValue};
 pub use metadata::CircuitMetadata;
 pub use outputs::OutputBag;
