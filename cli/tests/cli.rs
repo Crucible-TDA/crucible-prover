@@ -482,6 +482,89 @@ fn artifacts_inspect_rejects_an_unknown_operation() {
     );
 }
 
+// --- witness build ----------------------------------------------------------
+
+#[test]
+fn witness_build_writes_a_restricted_prover_toml() {
+    let vector = repo_catalog()
+        .join("transfer")
+        .join("valid")
+        .join("transfer-valid-001.json");
+    let dir = tempfile::tempdir().expect("temp dir");
+    let out = dir.path().join("Prover.toml");
+
+    let output = run(&[
+        "witness",
+        "build",
+        "transfer",
+        "--vector",
+        vector.to_str().unwrap(),
+        "--out",
+        out.to_str().unwrap(),
+    ]);
+    assert!(output.status.success(), "stderr: {}", stderr(&output));
+    assert!(stdout(&output).contains("wrote"), "{}", stdout(&output));
+
+    let contents = std::fs::read_to_string(&out).expect("witness file written");
+    // Private values are hex-encoded exactly as Noir expects (0x-prefixed).
+    assert!(contents.contains("sender_sk = \"0x"), "{contents}");
+    // The state root halves are public context and must be present.
+    assert!(contents.contains("root_hi = \"0x"), "{contents}");
+    assert!(contents.contains("root_lo = \"0x"), "{contents}");
+
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        let mode = std::fs::metadata(&out).unwrap().permissions().mode();
+        assert_eq!(mode & 0o777, 0o600, "witness file must be 0600");
+    }
+}
+
+#[test]
+fn witness_build_summary_never_prints_private_values() {
+    let vector = repo_catalog()
+        .join("register")
+        .join("valid")
+        .join("register-valid-001.json");
+    let output = run(&[
+        "witness",
+        "build",
+        "register",
+        "--vector",
+        vector.to_str().unwrap(),
+    ]);
+    assert!(output.status.success(), "stderr: {}", stderr(&output));
+    let text = stdout(&output);
+    // The private name is listed, its value never is (the fixture secret is
+    // hex `1234`; the public address shares no digits with it).
+    assert!(text.contains("account_sk"), "{text}");
+    assert!(text.contains("(redacted)"), "{text}");
+    assert!(!text.contains("1234"), "private value leaked:\n{text}");
+    assert!(
+        text.contains("summary only"),
+        "must mention --out when not writing: {text}"
+    );
+}
+
+#[test]
+fn witness_build_rejects_an_operation_vector_mismatch() {
+    let dir = tempfile::tempdir().expect("temp dir");
+    let vector = write_register_vector(dir.path(), "mismatch");
+    let output = run(&[
+        "witness",
+        "build",
+        "transfer",
+        "--vector",
+        vector.to_str().unwrap(),
+    ]);
+    assert!(!output.status.success());
+    assert!(
+        stderr(&output).contains("does not match"),
+        "{}",
+        stderr(&output)
+    );
+}
+
 // --- envelope compatibility with the committed catalog ----------------------
 
 #[test]

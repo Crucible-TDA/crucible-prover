@@ -22,6 +22,7 @@ crucible-proof-types = { path = "../crates/proof-types" }
 crucible-prover-core = { path = "../crates/prover-core" }
 crucible-ultrahonk = { path = "../crates/ultrahonk" }
 crucible-vectors = { path = "../crates/vectors" }
+crucible-witness = { path = "../crates/witness" }
 clap = { workspace = true }
 serde_json.workspace = true
 sha2.workspace = true

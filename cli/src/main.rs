@@ -13,7 +13,7 @@ use std::process::ExitCode;
 
 use clap::{Parser, Subcommand};
 
-use crate::commands::{artifacts, circuits, prove, vectors, verify};
+use crate::commands::{artifacts, circuits, prove, vectors, verify, witness};
 
 #[derive(Debug, Parser)]
 #[command(
@@ -50,6 +50,11 @@ enum Command {
         #[command(subcommand)]
         command: vectors::VectorsCommand,
     },
+    /// Assemble and emit a circuit witness from a test vector.
+    Witness {
+        #[command(subcommand)]
+        command: witness::WitnessCommand,
+    },
 }
 
 fn main() -> ExitCode {
@@ -74,5 +79,6 @@ fn run(command: Command, circuits: &std::path::Path) -> Result<(), String> {
         Command::Prove(args) => prove::run(args, circuits),
         Command::Verify(args) => verify::run(args),
         Command::Vectors { command } => vectors::run(command),
+        Command::Witness { command } => witness::run(command),
     }
 }

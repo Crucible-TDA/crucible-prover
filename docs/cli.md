@@ -73,6 +73,23 @@ diagnostics; the exit code is non-zero when anything failed. This is
 the `artifact inspect` surface for answering *which circuit produced
 this proof* (see `docs/artifacts.md`).
 
+### `witness build`
+
+```bash
+crucible-prover witness build transfer \
+  --vector test-vectors/transfer/valid/transfer-valid-001.json
+crucible-prover witness build transfer \
+  --vector test-vectors/transfer/valid/transfer-valid-001.json \
+  --out /tmp/transfer.Prover.toml
+```
+
+Assembles the circuit witness a vector describes and shows what the
+circuit will see: every public value in full, every private value as a
+redacted name. With `--out` it writes the Noir `Prover.toml` layout
+through `crucible-witness`'s restricted encoder (0600 on Unix) — the
+only place private values leave memory — for hand-off to a toolchain
+or debugging. The summary path never prints a private value.
+
 ### `prove`
 
 ```bash

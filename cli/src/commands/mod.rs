@@ -5,3 +5,4 @@ pub mod circuits;
 pub mod prove;
 pub mod vectors;
 pub mod verify;
+pub mod witness;
