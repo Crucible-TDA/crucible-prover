@@ -3,8 +3,9 @@ resolver = "2"
 members = [
     "interfaces",
     "crates/proof-types",
+    "crates/witness",
 ]
-default-members = ["interfaces", "crates/proof-types"]
+default-members = ["interfaces", "crates/proof-types", "crates/witness"]
 
 [workspace.package]
 version = "0.1.0"
