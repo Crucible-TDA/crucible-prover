@@ -5,6 +5,9 @@
 //! duplicated per binary.
 #![forbid(unsafe_code)]
 
+/// Loader and structural validation for the `test-vectors/` JSON catalog.
+pub mod vectors;
+
 use crucible_interfaces::prover::Prover;
 use crucible_interfaces::{ProofResponse, VerificationRequest, Verifier};
 use crucible_mock::{MockProver, MockVerifier};
