@@ -6,7 +6,9 @@
 //! emit the range constraints; amount arithmetic in the operation circuits
 //! then happens on those bounded integers.
 
-/// Maximum amount width supported by the range helpers (u64).
+/// Maximum amount width supported by the range helpers (u64). Values that
+/// participate in sums use a smaller width (see `AMOUNT_BITS` in the crate
+/// root) so additions cannot overflow.
 pub global MAX_BITS: u64 = 64;
 
 /// Asserts that `value` fits in `bits` (i.e. `0 <= value < 2^bits`).

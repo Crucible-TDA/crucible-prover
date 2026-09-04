@@ -2,8 +2,8 @@
 members = [
     "lib",
     "register",
+    "deposit",
     # Added as each circuit package lands (Batch 2):
-    # "deposit",
     # "merge",
     # "transfer",
     # "withdraw",

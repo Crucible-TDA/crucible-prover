@@ -27,4 +27,7 @@ pub use types::{account, commitment, token};
 
 /// Upper bound on confidential amounts: values must fit in this many bits so
 /// range constraints are cheap and sums cannot wrap the field modulus.
-pub global AMOUNT_BITS: u32 = 64;
+///
+/// 63 bits leaves one bit of headroom so the sum of two bounded amounts
+/// still fits comfortably in u64 arithmetic without overflow checks.
+pub global AMOUNT_BITS: u64 = 63;
