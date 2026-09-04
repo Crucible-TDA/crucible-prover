@@ -1,0 +1,22 @@
+[package]
+name = "crucible-verifier"
+description = "Verification service: dispatches proofs to registered verifiers and reports cross-verifier agreement"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+keywords.workspace = true
+categories.workspace = true
+
+[dependencies]
+crucible-interfaces = { path = "../../interfaces" }
+thiserror.workspace = true
+
+[lints]
+workspace = true
+
+[dev-dependencies]
+crucible-mock = { path = "../mock" }
+serde_json.workspace = true

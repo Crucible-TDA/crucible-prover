@@ -95,6 +95,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "crucible-verifier"
+version = "0.1.0"
+dependencies = [
+ "crucible-interfaces",
+ "crucible-mock",
+ "serde_json",
+ "thiserror",
+]
+
+[[package]]
 name = "crucible-witness"
 version = "0.1.0"
 dependencies = [
