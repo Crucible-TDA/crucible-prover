@@ -73,6 +73,19 @@ cargo test --workspace
 Noir (circuits) is a separate toolchain; see `scripts/setup-noir.sh` and
 `docs/noir.md`.
 
+## Documentation
+
+- [`docs/architecture.md`](docs/architecture.md) — layers, boundaries, and
+  the dependency rules that keep the repos decoupled
+- [`docs/proving-model.md`](docs/proving-model.md) — requests, providers,
+  binding, and the mock backend
+- [`docs/proof-lifecycle.md`](docs/proof-lifecycle.md) — the stages every
+  proof passes through and their failure modes
+- [`docs/security.md`](docs/security.md) — guarantees, mechanisms, and
+  privacy rules for contributors
+- [`docs/threat-model.md`](docs/threat-model.md) — adversaries, attacks,
+  and the defenses (and tests) that resist them
+
 ## License
 
 Licensed under either of [Apache License, Version 2.0](LICENSE) or
