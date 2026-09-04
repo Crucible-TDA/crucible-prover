@@ -26,10 +26,26 @@ pub mod backend;
 pub mod calldata;
 pub mod errors;
 pub mod proof;
+pub mod toolchain;
 pub mod vk;
 
 pub use backend::{BACKEND_COMPAT, CompatEntry, UltraHonkBackend};
 pub use calldata::CalldataEncoder;
 pub use errors::UltraHonkError;
 pub use proof::{PROOF_FORMAT, PROOF_FORMAT_TAG};
+pub use toolchain::{BbToolchain, BbVersion};
 pub use vk::VerificationKeyIdPolicy;
+
+/// The default command used to locate `bb`.
+pub const BB_BIN: &str = "bb";
+
+/// The minimum `bb` major version this adapter understands.
+///
+/// The major floor excludes pre-2026 Barretenberg CLI generations whose
+/// command surface and artifact formats differ from what this adapter is
+/// developed against; the exact validated pairing is pinned in
+/// [`BACKEND_COMPAT`].
+pub const MIN_BB_MAJOR: u32 = 4;
+
+/// The `bb` version this adapter is validated against (see [`BACKEND_COMPAT`]).
+pub const TESTED_BB_VERSION: &str = "6.0.0-nightly.20260903";

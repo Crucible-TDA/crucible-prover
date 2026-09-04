@@ -9,6 +9,7 @@
 use crucible_interfaces::{BackendId, CircuitId, Operation, Version};
 
 use crate::errors::UltraHonkError;
+use crate::TESTED_BB_VERSION;
 
 /// The backend id used on the wire and in providers.
 pub const BACKEND_ID: &str = "ultrahonk";
@@ -28,11 +29,12 @@ pub struct CompatEntry {
 /// Backends known to this crate, with their compatibility matrix.
 ///
 /// This is a *knowledge base*, seeded from the toolchain this repository is
-/// developed against. It will grow as the circuits batch pins exact
-/// `nargo`/`bb` releases; entries marked `validated` are covered by CI.
+/// developed against. The single entry below is the pairing the Barretenberg
+/// adapter is **validated against** in CI: circuits compiled with this nargo
+/// release prove and verify with this bb release (scheme `ultra_honk`).
 pub const BACKEND_COMPAT: &[CompatEntry] = &[CompatEntry {
     nargo: "1.0.0-beta.26",
-    bb: "unvalidated", // pinned when the Barretenberg adapter lands
+    bb: TESTED_BB_VERSION,
     circuits: Version::new(0, 1, 0),
 }];
 
