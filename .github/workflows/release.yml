@@ -28,8 +28,19 @@ jobs:
       - name: Release build (no debug symbols)
         run: cargo build --release
 
-      # The CLI binary arrives in a later batch; once it exists, this job
-      # uploads it to the release. The build step above keeps the tag
-      # gate honest until then.
-      - name: Assert release build produced artifacts
-        run: ls target/release/*.rlib | head -1
+      - name: Assert the release binary exists
+        run: test -x target/release/crucible-prover
+
+      # Attach the CLI binary to the tagged release. The tag gate above (run
+      # checks + tests + release build) keeps the artifact honest: only a tag
+      # whose tree passes the whole workspace ships a binary. gh is available
+      # on ubuntu-latest runners and GITHUB_TOKEN is scoped to this repo.
+      # A pushed tag does not get a release object until one is created, so
+      # create it (with notes) and fall back to uploading when it exists.
+      - name: Publish the crucible-prover CLI to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" target/release/crucible-prover \
+            --title "${GITHUB_REF_NAME}" --generate-notes 2>/dev/null \
+            || gh release upload "${GITHUB_REF_NAME}" target/release/crucible-prover --clobber
