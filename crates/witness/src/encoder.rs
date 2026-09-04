@@ -20,17 +20,20 @@ use crate::errors::WitnessError;
 /// Encodes witness data into the Noir `Prover.toml` text layout.
 ///
 /// Output is deterministic for identical input: public values first, then
-/// private values, each in bag insertion order. Callers must treat the
-/// returned string as secret material.
+/// private values, each in bag insertion order. Values are written as
+/// `0x`-prefixed hex — Noir's witness parser treats an unprefixed string as
+/// **decimal**, so a bare `ab` fails to parse and a bare `1234` silently
+/// means decimal 1234 rather than `0x1234`. Callers must treat the returned
+/// string as secret material.
 pub fn encode_toml(data: &WitnessData) -> String {
     let mut out = String::new();
     for (name, value) in data.public_inputs().iter() {
-        out.push_str(&format!("{name} = \"{}\"\n", value.as_hex()));
+        out.push_str(&format!("{name} = \"0x{}\"\n", value.as_hex()));
     }
     for name in data.private().names() {
         // Values are pulled out only here, never formatted.
         let value = data.private().get(name).expect("name from iterator");
-        out.push_str(&format!("{name} = \"{}\"\n", value.clone().into_hex()));
+        out.push_str(&format!("{name} = \"0x{}\"\n", value.clone().into_hex()));
     }
     out
 }
@@ -94,8 +97,10 @@ mod tests {
         let a = encode_toml(&sample_data());
         let b = encode_toml(&sample_data());
         assert_eq!(a, b);
-        assert!(a.contains("token = \"1\"\n"), "unexpected: {a}");
-        assert!(a.contains("amount = \"ab\"\n"), "unexpected: {a}");
+        assert!(a.contains("token = \"0x1\"\n"), "unexpected: {a}");
+        assert!(a.contains("amount = \"0xab\"\n"), "unexpected: {a}");
+        // Values whose hex contains letters must stay hex, not become decimal.
+        assert!(!a.contains("amount = \"ab\""), "bare hex would parse as decimal: {a}");
         // Public values come before private ones.
         assert!(a.find("token").unwrap() < a.find("amount").unwrap());
     }
@@ -113,6 +118,6 @@ mod tests {
             assert_eq!(mode & 0o777, 0o600, "witness file must be 0600");
         }
         let contents = std::fs::read_to_string(&path).unwrap();
-        assert!(contents.contains("amount = \"ab\""));
+        assert!(contents.contains("amount = \"0xab\""));
     }
 }
