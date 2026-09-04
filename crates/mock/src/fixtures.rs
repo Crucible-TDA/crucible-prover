@@ -15,6 +15,16 @@ pub fn state_root_a() -> RootDigest {
     RootDigest::from_hex(&"ab".repeat(32)).expect("valid hex")
 }
 
+/// `root_hi` for [`state_root_a`] — the most significant 128 bits (`ab`*16).
+pub fn state_root_a_hi() -> &'static str {
+    "ababababababababababababababab"
+}
+
+/// `root_lo` for [`state_root_a`] — the least significant 128 bits (`ab`*16).
+pub fn state_root_a_lo() -> &'static str {
+    "ababababababababababababababab"
+}
+
 /// A second, distinct state root for stale-state tests.
 pub fn state_root_b() -> RootDigest {
     RootDigest::from_hex(&"cd".repeat(32)).expect("valid hex")
@@ -134,18 +144,26 @@ pub fn merge_request() -> ProofRequest {
                                     with_public(
                                         with_public(
                                             with_public(
-                                                base_request(Operation::Merge, "merge-1"),
-                                                "token_address",
-                                                "c0ffee",
+                                                with_public(
+                                                    with_public(
+                                                        base_request(Operation::Merge, "merge-1"),
+                                                        "token_address",
+                                                        "c0ffee",
+                                                    ),
+                                                    "account_address",
+                                                    "a1b2c3d4",
+                                                ),
+                                                "commitment_a",
+                                                "1111",
                                             ),
-                                            "account_address",
-                                            "a1b2c3d4",
+                                            "commitment_b",
+                                            "2222",
                                         ),
-                                        "commitment_a",
-                                        "1111",
+                                        "root_hi",
+                                        state_root_a_hi(),
                                     ),
-                                    "commitment_b",
-                                    "2222",
+                                    "root_lo",
+                                    state_root_a_lo(),
                                 ),
                                 "account_sk",
                                 "0x1122334455667788",
@@ -187,18 +205,26 @@ pub fn transfer_request() -> ProofRequest {
                                     with_public(
                                         with_public(
                                             with_public(
-                                                base_request(Operation::Transfer, "transfer-1"),
-                                                "token_address",
-                                                "c0ffee",
+                                                with_public(
+                                                    with_public(
+                                                        base_request(Operation::Transfer, "transfer-1"),
+                                                        "token_address",
+                                                        "c0ffee",
+                                                    ),
+                                                    "sender_address",
+                                                    "aa11",
+                                                ),
+                                                "recipient_address",
+                                                "bb22",
                                             ),
-                                            "sender_address",
-                                            "aa11",
+                                            "old_sender_commitment",
+                                            "cc33",
                                         ),
-                                        "recipient_address",
-                                        "bb22",
+                                        "root_hi",
+                                        state_root_a_hi(),
                                     ),
-                                    "old_sender_commitment",
-                                    "cc33",
+                                    "root_lo",
+                                    state_root_a_lo(),
                                 ),
                                 "sender_sk",
                                 "0xdeadbeefcafe",
@@ -237,15 +263,23 @@ pub fn withdraw_request() -> ProofRequest {
                             with_public(
                                 with_public(
                                     with_public(
-                                        base_request(Operation::Withdraw, "withdraw-1"),
-                                        "token_address",
-                                        "c0ffee",
+                                        with_public(
+                                            with_public(
+                                                base_request(Operation::Withdraw, "withdraw-1"),
+                                                "token_address",
+                                                "c0ffee",
+                                            ),
+                                            "account_address",
+                                            "dd44",
+                                        ),
+                                        "commitment",
+                                        "ee55",
                                     ),
-                                    "account_address",
-                                    "dd44",
+                                    "root_hi",
+                                    state_root_a_hi(),
                                 ),
-                                "commitment",
-                                "ee55",
+                                "root_lo",
+                                state_root_a_lo(),
                             ),
                             "account_sk",
                             "0x1020304050607080",

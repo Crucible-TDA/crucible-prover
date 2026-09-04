@@ -75,6 +75,13 @@ impl ProverService {
                 request.operation, missing
             )));
         }
+        let missing_public = crate::witness::missing_public_names(request);
+        if !missing_public.is_empty() {
+            return Err(CoreError::InvalidRequest(format!(
+                "operation {} requires public parameters {:?}",
+                request.operation, missing_public
+            )));
+        }
         Ok(())
     }
 
