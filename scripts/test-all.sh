@@ -18,8 +18,8 @@ if command -v nargo >/dev/null 2>&1; then
     echo "==> cross-language vector runner (circuit tier)"
     cargo test -p crucible-tests --test vectors
     if command -v bb >/dev/null 2>&1; then
-        echo "==> ultrahonk live proving (bb round trips)"
-        cargo test -p crucible-tests --test ultrahonk
+        echo "==> ultrahonk live proving + trait-seam backend"
+        cargo test -p crucible-tests --test ultrahonk --test real_backend
     else
         echo "bb not on PATH; skipping live proving (see scripts/check-bb.sh)." >&2
     fi

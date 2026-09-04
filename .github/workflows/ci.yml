@@ -109,7 +109,7 @@ jobs:
           export PATH="$HOME/.cargo/bin:$HOME/.nargo/bin:$PATH"
           cargo test -p crucible-tests --test vectors
 
-      - name: UltraHonk live proving (bb round trips)
+      - name: UltraHonk live proving (bb round trips + trait-seam backend)
         run: |
           export PATH="$HOME/.cargo/bin:$HOME/.nargo/bin:$HOME/.bb:$PATH"
-          cargo test -p crucible-tests --test ultrahonk
+          cargo test -p crucible-tests --test ultrahonk --test real_backend
