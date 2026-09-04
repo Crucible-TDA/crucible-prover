@@ -1,0 +1,20 @@
+[workspace]
+members = [
+    "lib",
+    # Added as each circuit package lands (Batch 2):
+    # "register",
+    # "deposit",
+    # "merge",
+    # "transfer",
+    # "withdraw",
+    # "gadgets/commitment",
+    # "gadgets/hash",
+    # "gadgets/range",
+    # "gadgets/ownership",
+    # "gadgets/state",
+]
+
+# The compiler version this workspace is developed against (see
+# scripts/check-circuits.sh). default-members keeps bare `nargo check`
+# runs fast on the shared library.
+default-members = ["lib"]

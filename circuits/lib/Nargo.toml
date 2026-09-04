@@ -1,0 +1,7 @@
+[package]
+authors = ["Crucible-TDA contributors"]
+compiler_version = ">=1.0.0"
+name = "circuit_lib"
+type = "lib"
+
+[dependencies]
