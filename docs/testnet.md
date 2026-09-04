@@ -27,8 +27,9 @@ surface, never a default CI dependency:
 
 The existing pattern to follow is `scripts/check-bb.sh` /
 `scripts/check-circuits.sh`: a gate script that exits non-zero in CI when
-the prerequisite is missing but prints a clear skip locally. A
-`scripts/check-testnet.sh` would gate testnet runs the same way.
+the prerequisite is missing but prints a clear skip locally. A testnet
+gate would follow that same pattern, naming its required endpoint and
+verifier-contract state explicitly.
 
 ## Developer-preview caveat
 
