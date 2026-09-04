@@ -17,10 +17,22 @@
 //!
 //! # Configuration
 //!
-//! Proving needs a *compiled* circuit and the `nargo`/`bb` toolchains on
-//! PATH. The provider therefore takes an [`UltraHonkConfig`] pointing at the
-//! circuits workspace (whose `target/` holds the bytecode) and at the
+//! Proving needs a *pinned, integral* circuit and the `nargo`/`bb`
+//! toolchains on PATH. The provider therefore takes an [`UltraHonkConfig`]
+//! pointing at the pinned artifact root (default
+//! `<circuits>/../artifacts/circuits`, see [`UltraHonkConfig::new`]), at the
+//! circuits workspace (used only to solve witnesses from source), and at the
 //! [`VkStore`] that verification keys are written into.
+//!
+//! # Artifact integrity
+//!
+//! The provider never proves against ad-hoc bytecode. Every artifact is
+//! strict-loaded through [`crucible_artifacts::ArtifactLoader`] before a
+//! single byte is touched: the manifest must parse, every declared file must
+//! match its SHA-256, and no undeclared file may be present. A swapped,
+//! tampered, or incomplete artifact fails with
+//! [`ProviderError::ArtifactIntegrity`] / [`ProviderError::ArtifactUnavailable`]
+//! before any proving work starts.
 //!
 //! # Privacy
 //!
@@ -30,6 +42,7 @@
 
 use std::path::PathBuf;
 
+use crucible_artifacts::{ArtifactError, ArtifactLoader};
 use crucible_interfaces::circuit::expectations;
 use crucible_interfaces::{
     ArtifactChecksum, BackendId, CircuitId, FieldValue, OutputBag, ProofBlob, ProofFormat,
@@ -49,17 +62,34 @@ pub struct UltraHonkConfig {
     /// Root of the Noir circuits workspace (contains `<op>/` packages, the
     /// `lib/` dependency, and `target/` with compiled bytecode).
     pub circuits_root: PathBuf,
+    /// Root holding the pinned circuit artifacts (`<op>/manifest.json` +
+    /// `<op>/<op>.json`), integrity-verified before proving.
+    pub artifact_root: PathBuf,
     /// Store that produced verification keys are written into.
     pub vk_store: VkStore,
 }
 
 impl UltraHonkConfig {
     /// Creates a configuration.
+    ///
+    /// The pinned artifact root defaults to `<circuits_root>/../artifacts/circuits`
+    /// (the repository's `artifacts/circuits/` for a checkout-based
+    /// `circuits_root`); override it with
+    /// [`UltraHonkConfig::with_artifact_root`].
     pub fn new(circuits_root: impl Into<PathBuf>, vk_store: VkStore) -> UltraHonkConfig {
+        let circuits_root = circuits_root.into();
+        let artifact_root = circuits_root.join("..").join("artifacts").join("circuits");
         UltraHonkConfig {
-            circuits_root: circuits_root.into(),
+            circuits_root,
+            artifact_root,
             vk_store,
         }
+    }
+
+    /// Overrides the pinned artifact root this configuration proves from.
+    pub fn with_artifact_root(mut self, artifact_root: impl Into<PathBuf>) -> UltraHonkConfig {
+        self.artifact_root = artifact_root.into();
+        self
     }
 }
 
@@ -84,14 +114,6 @@ impl UltraHonkProvider {
     /// The verification-key store backing this provider.
     pub fn vk_store(&self) -> &VkStore {
         &self.config.vk_store
-    }
-
-    /// The compiled bytecode path for a protocol circuit.
-    fn bytecode_path(&self, circuit: &CircuitId) -> PathBuf {
-        self.config
-            .circuits_root
-            .join("target")
-            .join(format!("{circuit}.json"))
     }
 }
 
@@ -153,20 +175,41 @@ impl ProofProvider for UltraHonkProvider {
                 reason: e.to_string(),
             })?;
 
-        // The compiled artifact must exist and must be integral: its SHA-256
-        // becomes both the artifact checksum and the VK id discriminator.
-        let bytecode = self.bytecode_path(&request.circuit);
-        let bytecode_bytes = match std::fs::read(&bytecode) {
-            Ok(bytes) => bytes,
-            Err(_) => {
-                return Err(ProviderError::ArtifactUnavailable {
-                    backend: BackendId::ULTRAHONK.to_owned(),
-                    circuit: request.circuit.clone(),
-                    version: request.circuit_version,
-                });
+        // The compiled artifact must be present *and integral*: it is
+        // strict-loaded against its manifest (every declared file must match
+        // its SHA-256, no undeclared file may be present) before a single
+        // byte is touched. Its SHA-256 becomes both the artifact checksum
+        // and the VK id discriminator.
+        let artifact_dir = self.config.artifact_root.join(request.circuit.as_str());
+        let loaded = ArtifactLoader::new().load(&artifact_dir).map_err(|e| {
+            let circuit = request.circuit.clone();
+            let version = request.circuit_version;
+            match e {
+                ArtifactError::ReadFailure { .. } | ArtifactError::MissingFile { .. } => {
+                    ProviderError::ArtifactUnavailable {
+                        backend: BackendId::ULTRAHONK.to_owned(),
+                        circuit,
+                        version,
+                    }
+                }
+                _ => ProviderError::ArtifactIntegrity {
+                    circuit,
+                    version,
+                },
             }
-        };
-        let artifact_checksum = ArtifactChecksum::from_bytes(&bytecode_bytes);
+        })?;
+        let bytecode_name = format!("{}.json", request.circuit);
+        let bytecode_bytes = loaded.file(&bytecode_name).ok_or_else(|| {
+            ProviderError::ArtifactUnavailable {
+                backend: BackendId::ULTRAHONK.to_owned(),
+                circuit: request.circuit.clone(),
+                version: request.circuit_version,
+            }
+        })?;
+        // bb consumes the file at its verified path; the loader has already
+        // proven those bytes match the manifest.
+        let bytecode = artifact_dir.join(&bytecode_name);
+        let artifact_checksum = ArtifactChecksum::from_bytes(bytecode_bytes);
         let vk_id = VerificationKeyIdPolicy::id_for(
             &request.circuit,
             &request.circuit_version,

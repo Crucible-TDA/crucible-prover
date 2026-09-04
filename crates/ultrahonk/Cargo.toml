@@ -11,6 +11,7 @@ keywords.workspace = true
 categories.workspace = true
 
 [dependencies]
+crucible-artifacts = { path = "../artifacts" }
 crucible-interfaces = { path = "../../interfaces" }
 crucible-noir = { path = "../noir" }
 crucible-witness = { path = "../witness" }

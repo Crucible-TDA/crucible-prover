@@ -244,6 +244,7 @@ dependencies = [
 name = "crucible-ultrahonk"
 version = "0.1.0"
 dependencies = [
+ "crucible-artifacts",
  "crucible-interfaces",
  "crucible-noir",
  "crucible-witness",
