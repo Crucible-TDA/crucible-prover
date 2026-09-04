@@ -21,7 +21,7 @@ use crucible_tests::MockStack;
 use crucible_tests::circuit_runner::{
     CircuitScratch, assert_outputs_match, circuits_root, execute_vector,
 };
-use crucible_tests::vectors::{TestVector, load_catalog};
+use crucible_vectors::{TestVector, load_catalog};
 use std::collections::HashMap;
 use std::path::Path;
 

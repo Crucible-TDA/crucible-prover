@@ -16,7 +16,7 @@ use std::path::{Path, PathBuf};
 
 use crucible_noir::NoirToolchain;
 use crucible_tests::circuit_runner::{CircuitScratch, write_prover_toml};
-use crucible_tests::vectors::{TestVector, load_catalog};
+use crucible_vectors::{TestVector, load_catalog};
 use crucible_ultrahonk::{
     BbToolchain, ProveOptions, SCHEME_ULTRA_HONK, TESTED_BB_VERSION, VerifyOptions, prove,
     verify,

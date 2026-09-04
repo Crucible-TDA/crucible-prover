@@ -5,8 +5,8 @@
 //! describing one operation's witness: which values are public, which are
 //! private, what public outputs the circuit should report, and whether the
 //! vector is expected to verify. Because the format is JSON-only, the same
-//! file can drive a Rust runner (this crate), the Python schema checker, and
-//! eventually non-Rust consumers.
+//! file can drive a Rust runner (this crate, the CLI, the integration test
+//! tiers), the Python schema checker, and eventually non-Rust consumers.
 //!
 //! # Privacy boundary
 //!
@@ -277,8 +277,17 @@ impl TestVector {
     }
 
     /// Rebuilds the [`ProofRequest`] this vector describes, against the mock
-    /// backend. Used by the runner's mock tier.
+    /// backend. Used by the test runner's mock tier; the CLI passes the
+    /// concrete backend id it was asked to prove with.
     pub fn to_request(&self) -> ProofRequest {
+        self.to_request_for(BackendId::MOCK)
+    }
+
+    /// Rebuilds the [`ProofRequest`] this vector describes, targeting the
+    /// given backend id (`mock`, `ultrahonk`, …). The witness and public
+    /// inputs are identical to [`TestVector::to_request`]; only the backend
+    /// label on the request changes.
+    pub fn to_request_for(&self, backend: &str) -> ProofRequest {
         let mut witness = PrivateWitnessBag::new();
         for (name, hex) in &self.witness.private {
             witness
@@ -294,7 +303,7 @@ impl TestVector {
             self.circuit.clone(),
             self.circuit_version,
             Version::v0_1(),
-            BackendId::new(BackendId::MOCK).expect("mock backend id is valid"),
+            BackendId::new(backend).expect("backend id is valid"),
             witness,
             self.witness.public.clone(),
             self.state_reference.clone(),
@@ -355,7 +364,7 @@ pub fn load_catalog(root: &Path) -> Result<Vec<TestVector>, String> {
 
 /// The repo's test-vectors directory (relative to this crate's manifest).
 pub fn catalog_root() -> PathBuf {
-    Path::new(env!("CARGO_MANIFEST_DIR")).join("../test-vectors")
+    Path::new(env!("CARGO_MANIFEST_DIR")).join("../../test-vectors")
 }
 
 /// Canonical state root used by state-bound fixtures (`ab`*32).

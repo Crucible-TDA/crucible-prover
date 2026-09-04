@@ -19,7 +19,7 @@ use crucible_interfaces::{
 };
 use crucible_noir::NoirToolchain;
 use crucible_prover_core::ProverService;
-use crucible_tests::vectors::{TestVector, load_catalog};
+use crucible_vectors::{TestVector, load_catalog};
 use crucible_ultrahonk::{
     BbToolchain, UltraHonkConfig, UltraHonkProvider, UltraHonkVerifier, VkStore,
     VerificationKeyIdPolicy,

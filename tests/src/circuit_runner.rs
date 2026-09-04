@@ -19,7 +19,7 @@ use std::path::{Path, PathBuf};
 use crucible_noir::NoirToolchain;
 use crucible_noir::compiler::{CapturedExecute, ReportedOutputs};
 
-use crate::vectors::TestVector;
+use crucible_vectors::TestVector;
 
 /// Locates the circuits workspace relative to this crate's manifest.
 pub fn circuits_root() -> PathBuf {

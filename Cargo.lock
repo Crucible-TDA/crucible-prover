@@ -117,6 +117,7 @@ dependencies = [
  "crucible-proof-types",
  "crucible-prover-core",
  "crucible-ultrahonk",
+ "crucible-vectors",
  "crucible-verifier",
  "crucible-witness",
  "serde",
@@ -137,6 +138,16 @@ dependencies = [
  "sha2",
  "tempfile",
  "thiserror",
+]
+
+[[package]]
+name = "crucible-vectors"
+version = "0.1.0"
+dependencies = [
+ "crucible-interfaces",
+ "serde",
+ "serde_json",
+ "tempfile",
 ]
 
 [[package]]
