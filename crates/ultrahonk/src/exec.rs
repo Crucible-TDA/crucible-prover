@@ -151,10 +151,7 @@ impl ProvenArtifacts {
     pub fn files(&self) -> ArtifactFiles {
         ArtifactFiles {
             proof: self.output_dir.join("proof.json"),
-            vk: self
-                .vk
-                .as_ref()
-                .map(|_| self.output_dir.join("vk.json")),
+            vk: self.vk.as_ref().map(|_| self.output_dir.join("vk.json")),
             public_inputs: self.output_dir.join("public_inputs.json"),
         }
     }
@@ -221,11 +218,9 @@ pub fn prove(
     }
     command.arg("--output_format").arg("json");
 
-    let output = command
-        .output()
-        .map_err(|e| UltraHonkError::Spawn {
-            reason: format!("cannot spawn `{}`: {e}", toolchain.binary().display()),
-        })?;
+    let output = command.output().map_err(|e| UltraHonkError::Spawn {
+        reason: format!("cannot spawn `{}`: {e}", toolchain.binary().display()),
+    })?;
     if !output.status.success() {
         return Err(UltraHonkError::CommandFailed {
             command: "prove".to_owned(),
@@ -237,13 +232,19 @@ pub fn prove(
     let public_inputs =
         read_document::<PublicInputsDocument>(&options.output_dir.join("public_inputs.json"))?;
     let vk = if options.write_vk {
-        Some(read_document::<VkDocument>(&options.output_dir.join("vk.json"))?)
+        Some(read_document::<VkDocument>(
+            &options.output_dir.join("vk.json"),
+        )?)
     } else {
         None
     };
 
     validate_provenance("proof", &proof.scheme, &proof.bb_version)?;
-    validate_provenance("public inputs", &public_inputs.scheme, &public_inputs.bb_version)?;
+    validate_provenance(
+        "public inputs",
+        &public_inputs.scheme,
+        &public_inputs.bb_version,
+    )?;
     if let Some(vk) = &vk {
         validate_provenance("verification key", &vk.scheme, &vk.bb_version)?;
         // The proof embeds the digest of the exact VK it must be checked
@@ -352,9 +353,7 @@ fn word_bytes(word: &str) -> Result<[u8; 32], UltraHonkError> {
     }
     let padded = format!("{hex:0>64}");
     let mut out = [0u8; 32];
-    out.copy_from_slice(
-        &hex::decode(&padded).expect("validated hex is decodable")[..],
-    );
+    out.copy_from_slice(&hex::decode(&padded).expect("validated hex is decodable")[..]);
     Ok(out)
 }
 

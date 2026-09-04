@@ -100,7 +100,10 @@ mod tests {
         assert!(a.contains("token = \"0x1\"\n"), "unexpected: {a}");
         assert!(a.contains("amount = \"0xab\"\n"), "unexpected: {a}");
         // Values whose hex contains letters must stay hex, not become decimal.
-        assert!(!a.contains("amount = \"ab\""), "bare hex would parse as decimal: {a}");
+        assert!(
+            !a.contains("amount = \"ab\""),
+            "bare hex would parse as decimal: {a}"
+        );
         // Public values come before private ones.
         assert!(a.find("token").unwrap() < a.find("amount").unwrap());
     }

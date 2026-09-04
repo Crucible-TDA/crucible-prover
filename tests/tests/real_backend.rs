@@ -19,11 +19,11 @@ use crucible_interfaces::{
 };
 use crucible_noir::NoirToolchain;
 use crucible_prover_core::ProverService;
-use crucible_vectors::{TestVector, load_catalog};
 use crucible_ultrahonk::{
-    BbToolchain, UltraHonkConfig, UltraHonkProvider, UltraHonkVerifier, VkStore,
-    VerificationKeyIdPolicy,
+    BbToolchain, UltraHonkConfig, UltraHonkProvider, UltraHonkVerifier, VerificationKeyIdPolicy,
+    VkStore,
 };
+use crucible_vectors::{TestVector, load_catalog};
 
 /// A fully wired real stack: provider + verifier sharing one VK store.
 struct RealStack {
@@ -37,7 +37,9 @@ struct RealStack {
 
 /// The circuits workspace, relative to the tests crate manifest.
 fn circuits_root() -> &'static Path {
-    Path::new(env!("CARGO_MANIFEST_DIR")).join("../circuits").leak()
+    Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../circuits")
+        .leak()
 }
 
 fn real_stack() -> Option<RealStack> {
@@ -79,7 +81,10 @@ fn real_request(vector: &TestVector) -> crucible_interfaces::ProofRequest {
 /// Whether the compiled bytecode for `op` exists (CI compiles before this
 /// suite runs; local runs need a prior `nargo compile`/`nargo test`).
 fn bytecode_present(op: &str) -> bool {
-    circuits_root().join("target").join(format!("{op}.json")).is_file()
+    circuits_root()
+        .join("target")
+        .join(format!("{op}.json"))
+        .is_file()
 }
 
 #[test]
@@ -114,15 +119,23 @@ fn register_round_trips_through_the_service_with_real_proving() {
     // Public outputs carry the account address the proof commits to.
     let spec = expectations(request.operation);
     assert_eq!(response.public_outputs.len(), spec.public_word_count());
-    let address = response.public_outputs.get("account_address").expect("named word");
+    let address = response
+        .public_outputs
+        .get("account_address")
+        .expect("named word");
     let expected = vector.witness.public.get("account_address").unwrap();
-    assert_eq!(address, expected, "proof must bind the request's account address");
+    assert_eq!(
+        address, expected,
+        "proof must bind the request's account address"
+    );
 
     // The verification key was persisted under the response's id.
-    assert!(stack
-        .verifier
-        .vk_store()
-        .contains(&response.verification_key_id));
+    assert!(
+        stack
+            .verifier
+            .vk_store()
+            .contains(&response.verification_key_id)
+    );
 }
 
 #[test]
@@ -144,7 +157,11 @@ fn transfer_round_trip_names_all_nine_public_words() {
     assert!(outcome.verified);
 
     let spec = expectations(request.operation);
-    assert_eq!(response.public_outputs.len(), 9, "transfer has nine public words");
+    assert_eq!(
+        response.public_outputs.len(),
+        9,
+        "transfer has nine public words"
+    );
     // Public params match the request (including the root halves, which the
     // request's public inputs carry and the circuit commits to), returns
     // match the fixture.
@@ -369,10 +386,7 @@ fn stale_state_is_rejected_cryptographically_when_words_are_rewritten() {
         .prove(&request)
         .expect("prove must succeed for a valid witness");
 
-    let root_b = StateReference::new(
-        RootDigest::from_hex(&"cd".repeat(32)).unwrap(),
-        99,
-    );
+    let root_b = StateReference::new(RootDigest::from_hex(&"cd".repeat(32)).unwrap(), 99);
     let (hi_b, lo_b) = root_b.root_halves();
     let mut rewritten = response.clone();
     rewritten

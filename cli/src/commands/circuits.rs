@@ -36,8 +36,8 @@ pub enum CircuitsCommand {
 
 /// SHA-256 of a file, hex-encoded.
 fn sha256_file(path: &Path) -> Result<String, String> {
-    let bytes = std::fs::read(path)
-        .map_err(|e| format!("cannot read `{}`: {e}", path.display()))?;
+    let bytes =
+        std::fs::read(path).map_err(|e| format!("cannot read `{}`: {e}", path.display()))?;
     let digest = Sha256::digest(&bytes);
     Ok(hex::encode(digest))
 }
@@ -59,13 +59,14 @@ pub fn run(command: CircuitsCommand, circuits: &Path) -> Result<(), String> {
 }
 
 fn list(circuits: &Path) -> Result<(), String> {
-    println!("{:<10} {:<18} {:<7} sha256", "circuit", "artifact", "status");
+    println!(
+        "{:<10} {:<18} {:<7} sha256",
+        "circuit", "artifact", "status"
+    );
     for op in OPERATIONS {
         let artifact = paths::artifact_path(circuits, op);
         if artifact.is_file() {
-            let size = std::fs::metadata(&artifact)
-                .map(|m| m.len())
-                .unwrap_or(0);
+            let size = std::fs::metadata(&artifact).map(|m| m.len()).unwrap_or(0);
             let digest = sha256_file(&artifact).unwrap_or_else(|e| e);
             println!(
                 "{:<10} {:<18} {:<7} {}",
@@ -88,11 +89,17 @@ fn check(circuits: &Path) -> Result<(), String> {
         if !artifact.is_file() {
             problems.push(format!("{op}: missing artifact `{}`", artifact.display()));
         } else if !is_parseable_json(&artifact) {
-            problems.push(format!("{op}: artifact `{}` is not valid JSON", artifact.display()));
+            problems.push(format!(
+                "{op}: artifact `{}` is not valid JSON",
+                artifact.display()
+            ));
         }
     }
     if problems.is_empty() {
-        println!("all {} operation circuits are compiled and parseable", OPERATIONS.len());
+        println!(
+            "all {} operation circuits are compiled and parseable",
+            OPERATIONS.len()
+        );
         Ok(())
     } else {
         for problem in &problems {
@@ -129,10 +136,7 @@ fn compile(circuits: &Path, op: Option<&str>) -> Result<(), String> {
         let output = toolchain
             .compile(circuits, package)
             .map_err(|e| format!("compiling `{package}` failed: {e}"))?;
-        println!(
-            "compiled {package}: {}",
-            output.artifact_path.display()
-        );
+        println!("compiled {package}: {}", output.artifact_path.display());
     }
     Ok(())
 }

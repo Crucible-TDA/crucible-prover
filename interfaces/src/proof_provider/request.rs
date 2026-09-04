@@ -466,13 +466,19 @@ mod tests {
     #[test]
     fn root_halves_split_256_bits_into_two_fields() {
         // Asymmetric root so hi/lo placement cannot be accidentally swapped.
-        let state = StateReference::new(RootDigest::from_hex(&("ab".repeat(16) + &"cd".repeat(16))).unwrap(), 1);
+        let state = StateReference::new(
+            RootDigest::from_hex(&("ab".repeat(16) + &"cd".repeat(16))).unwrap(),
+            1,
+        );
         let (hi, lo) = state.root_halves();
         assert_eq!(hi.as_hex(), "ab".repeat(16));
         assert_eq!(lo.as_hex(), "cd".repeat(16));
         // A root of all-one hex digits exercises no trimming; all-zero halves
         // canonicalize to the minimal "0" form.
-        let zero_hi = StateReference::new(RootDigest::from_hex(&("00".repeat(16) + &"ab".repeat(16))).unwrap(), 1);
+        let zero_hi = StateReference::new(
+            RootDigest::from_hex(&("00".repeat(16) + &"ab".repeat(16))).unwrap(),
+            1,
+        );
         let (zhi, zlo) = zero_hi.root_halves();
         assert_eq!(zhi.as_hex(), "0");
         assert_eq!(zlo.as_hex(), "ab".repeat(16));

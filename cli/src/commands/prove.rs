@@ -44,9 +44,7 @@ pub fn run(args: ProveArgs, circuits: &Path) -> Result<(), String> {
     if vector.operation.as_str() != args.op {
         return Err(format!(
             "operation `{}` does not match vector `{}` (operation {})",
-            args.op,
-            vector.id,
-            vector.operation
+            args.op, vector.id, vector.operation
         ));
     }
     if !vector.expect_verification {
@@ -69,17 +67,14 @@ pub fn run(args: ProveArgs, circuits: &Path) -> Result<(), String> {
             if !crucible_noir::NoirToolchain::is_available()
                 || !crucible_ultrahonk::BbToolchain::is_available()
             {
-                return Err(
-                    "ultrahonk proving requires nargo and bb on PATH (see \
+                return Err("ultrahonk proving requires nargo and bb on PATH (see \
                      scripts/check-bb.sh); use --backend mock for fast structural proving"
-                        .to_owned(),
-                );
+                    .to_owned());
             }
             let store = crucible_ultrahonk::VkStore::new(vk_store_or_default(&args.vk_store)?);
             let config = crucible_ultrahonk::UltraHonkConfig::new(circuits.to_path_buf(), store);
             let provider = crucible_ultrahonk::UltraHonkProvider::new(config);
-            let verifier =
-                crucible_ultrahonk::UltraHonkVerifier::new(provider.vk_store().clone());
+            let verifier = crucible_ultrahonk::UltraHonkVerifier::new(provider.vk_store().clone());
             service.register_provider(Box::new(provider));
             service.with_local_verifier(Box::new(verifier));
         }
@@ -96,22 +91,22 @@ pub fn run(args: ProveArgs, circuits: &Path) -> Result<(), String> {
         .prove_enveloped_and_verify(&request)
         .map_err(|e| format!("proving failed: {e}"))?;
 
-    let out = args.out.unwrap_or_else(|| {
-        PathBuf::from(format!("{}.{}.proof.json", vector.id, args.backend))
-    });
+    let out = args
+        .out
+        .unwrap_or_else(|| PathBuf::from(format!("{}.{}.proof.json", vector.id, args.backend)));
     let json = envelope
         .to_json()
         .map_err(|e| format!("serializing the proof envelope failed: {e}"))?;
     std::fs::write(&out, json).map_err(|e| format!("cannot write `{}`: {e}", out.display()))?;
 
     println!("request     {}", envelope.metadata.request_id);
-    println!("circuit     {} v{}", envelope.circuit, envelope.circuit_version);
+    println!(
+        "circuit     {} v{}",
+        envelope.circuit, envelope.circuit_version
+    );
     println!("backend     {}", envelope.backend);
     println!("vk id       {}", envelope.verification_key_id);
-    println!(
-        "public      {} word(s)",
-        envelope.public_outputs.len()
-    );
+    println!("public      {} word(s)", envelope.public_outputs.len());
     println!(
         "state       {}",
         envelope
@@ -127,10 +122,12 @@ pub fn run(args: ProveArgs, circuits: &Path) -> Result<(), String> {
 
 /// Resolves the verification-key store directory, creating it on demand.
 fn vk_store_or_default(explicit: &Option<PathBuf>) -> Result<PathBuf, String> {
-    let dir = explicit
-        .clone()
-        .unwrap_or_else(paths::default_vk_store);
-    std::fs::create_dir_all(&dir)
-        .map_err(|e| format!("cannot create verification-key store `{}`: {e}", dir.display()))?;
+    let dir = explicit.clone().unwrap_or_else(paths::default_vk_store);
+    std::fs::create_dir_all(&dir).map_err(|e| {
+        format!(
+            "cannot create verification-key store `{}`: {e}",
+            dir.display()
+        )
+    })?;
     Ok(dir)
 }

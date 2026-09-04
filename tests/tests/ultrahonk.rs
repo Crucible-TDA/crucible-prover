@@ -16,11 +16,10 @@ use std::path::{Path, PathBuf};
 
 use crucible_noir::NoirToolchain;
 use crucible_tests::circuit_runner::{CircuitScratch, write_prover_toml};
-use crucible_vectors::{TestVector, load_catalog};
 use crucible_ultrahonk::{
-    BbToolchain, ProveOptions, SCHEME_ULTRA_HONK, TESTED_BB_VERSION, VerifyOptions, prove,
-    verify,
+    BbToolchain, ProveOptions, SCHEME_ULTRA_HONK, TESTED_BB_VERSION, VerifyOptions, prove, verify,
 };
+use crucible_vectors::{TestVector, load_catalog};
 
 /// Loads one vector from the committed catalog by id.
 fn vector(id: &str) -> TestVector {
@@ -67,10 +66,16 @@ fn solve(op: &str, vector: &TestVector, toolchain: &NoirToolchain) -> Solved {
     assert!(
         captured.solved,
         "valid vector must solve the {op} circuit: {}",
-        captured.exit_code.map(|c| c.to_string()).unwrap_or_default()
+        captured
+            .exit_code
+            .map(|c| c.to_string())
+            .unwrap_or_default()
     );
     let witness = captured.witness_path.expect("solved witness written");
-    let bytecode = scratch.package_dir.join("target").join(format!("{op}.json"));
+    let bytecode = scratch
+        .package_dir
+        .join("target")
+        .join(format!("{op}.json"));
     assert!(
         bytecode.is_file(),
         "compiled bytecode must exist at {}",
@@ -99,7 +104,11 @@ fn canonical(hex: &str) -> String {
 /// and the same length.
 fn flip_word(word: &str) -> String {
     let mut chars: Vec<char> = word.chars().collect();
-    let i = if chars.get(0..2) == Some(&['0', 'x']) { 2 } else { 0 };
+    let i = if chars.get(0..2) == Some(&['0', 'x']) {
+        2
+    } else {
+        0
+    };
     chars[i] = if chars[i] == '0' { '1' } else { '0' };
     chars.into_iter().collect()
 }
@@ -139,7 +148,10 @@ fn register_proof_round_trips_and_binds_the_public_address() {
     assert_eq!(artifacts.proof.bb_version, TESTED_BB_VERSION);
     assert_eq!(artifacts.proof.vk_hash_bytes().unwrap().len(), 32);
     let vk = artifacts.vk.as_ref().expect("write_vk requested");
-    assert_eq!(vk.hash_bytes().unwrap(), artifacts.proof.vk_hash_bytes().unwrap());
+    assert_eq!(
+        vk.hash_bytes().unwrap(),
+        artifacts.proof.vk_hash_bytes().unwrap()
+    );
 
     // Register exposes exactly one public input: the account address. The
     // proof must bind to it — this is the crypto-level ownership statement.
@@ -240,7 +252,10 @@ fn wrong_verification_key_is_rejected() {
         },
     )
     .expect("bb verify must run");
-    assert!(!outcome.verified, "a proof under the wrong VK must be rejected");
+    assert!(
+        !outcome.verified,
+        "a proof under the wrong VK must be rejected"
+    );
 }
 
 #[test]
@@ -308,7 +323,10 @@ fn transfer_proof_binds_token_address_and_reports_outputs() {
 
     // Words 4 and 5 are the state-root halves the circuit commits to; the
     // fixture's state root split in half must match them exactly.
-    let state = vector.state_reference.as_ref().expect("transfer is state-bound");
+    let state = vector
+        .state_reference
+        .as_ref()
+        .expect("transfer is state-bound");
     let (hi, lo) = state.root_halves();
     assert_eq!(canonical(&words[4]), canonical(hi.as_hex()));
     assert_eq!(canonical(&words[5]), canonical(lo.as_hex()));
@@ -340,5 +358,8 @@ fn transfer_proof_binds_token_address_and_reports_outputs() {
         },
     )
     .expect("bb verify must run");
-    assert!(outcome.verified, "fresh transfer UltraHonk proof must verify");
+    assert!(
+        outcome.verified,
+        "fresh transfer UltraHonk proof must verify"
+    );
 }

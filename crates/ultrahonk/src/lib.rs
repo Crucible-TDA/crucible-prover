@@ -48,7 +48,7 @@ pub use backend::{BACKEND_COMPAT, CompatEntry, UltraHonkBackend};
 pub use calldata::CalldataEncoder;
 pub use errors::UltraHonkError;
 pub use exec::{
-    ArtifactFiles, ProofDocument, ProvenArtifacts, ProveOptions, PublicInputsDocument,
+    ArtifactFiles, ProofDocument, ProveOptions, ProvenArtifacts, PublicInputsDocument,
     SCHEME_ULTRA_HONK, VerifyOptions, VerifyOutcome, VkDocument, prove, verify,
 };
 pub use proof::{PROOF_FORMAT, PROOF_FORMAT_TAG};

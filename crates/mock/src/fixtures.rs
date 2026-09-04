@@ -207,7 +207,10 @@ pub fn transfer_request() -> ProofRequest {
                                             with_public(
                                                 with_public(
                                                     with_public(
-                                                        base_request(Operation::Transfer, "transfer-1"),
+                                                        base_request(
+                                                            Operation::Transfer,
+                                                            "transfer-1",
+                                                        ),
                                                         "token_address",
                                                         "c0ffee",
                                                     ),

@@ -54,10 +54,9 @@ impl VkStore {
                 use sha2::{Digest, Sha256};
                 let mut hasher = Sha256::new();
                 hasher.update(id.as_str().as_bytes());
-                self.root.join("_foreign").join(format!(
-                    "{}.json",
-                    hex::encode(hasher.finalize())
-                ))
+                self.root
+                    .join("_foreign")
+                    .join(format!("{}.json", hex::encode(hasher.finalize())))
             }
         }
     }
@@ -110,12 +109,11 @@ impl VkStore {
             path: path.display().to_string(),
             reason: e.to_string(),
         })?;
-        let doc: VkDocument = serde_json::from_str(&text).map_err(|e| {
-            UltraHonkError::MalformedArtifact {
+        let doc: VkDocument =
+            serde_json::from_str(&text).map_err(|e| UltraHonkError::MalformedArtifact {
                 path: path.display().to_string(),
                 reason: e.to_string(),
-            }
-        })?;
+            })?;
         if doc.scheme != SCHEME_ULTRA_HONK {
             return Err(UltraHonkError::MalformedArtifact {
                 path: path.display().to_string(),
@@ -140,17 +138,14 @@ mod tests {
     fn sample_id() -> VerificationKeyId {
         let circuit = crucible_interfaces::CircuitId::new("transfer").unwrap();
         let version = crucible_interfaces::Version::new(0, 1, 0);
-        let hash =
-            crucible_interfaces::ArtifactChecksum::from_hex(&"ab".repeat(32)).unwrap();
-        VerificationKeyId::new(VerificationKeyIdPolicy::id_for(&circuit, &version, &hash))
-            .unwrap()
+        let hash = crucible_interfaces::ArtifactChecksum::from_hex(&"ab".repeat(32)).unwrap();
+        VerificationKeyId::new(VerificationKeyIdPolicy::id_for(&circuit, &version, &hash)).unwrap()
     }
 
     fn sample_vk() -> VkDocument {
         VkDocument {
             vk: vec!["0x00".into(), "0x0e".into()],
-            hash: "0x12804588d2137c4293a920afbd63c968d8e847a0cf59704e58440ea0fb7d5cf9"
-                .to_owned(),
+            hash: "0x12804588d2137c4293a920afbd63c968d8e847a0cf59704e58440ea0fb7d5cf9".to_owned(),
             bb_version: "6.0.0-nightly.20260903".to_owned(),
             scheme: SCHEME_ULTRA_HONK.to_owned(),
         }
@@ -166,7 +161,12 @@ mod tests {
         assert!(store.contains(&id));
         let loaded = store.get(&id).unwrap();
         assert_eq!(loaded, sample_vk());
-        assert_eq!(store.path_for(&id), dir.path().join("transfer/0.1.0").join(format!("{}.json", "ab".repeat(32))));
+        assert_eq!(
+            store.path_for(&id),
+            dir.path()
+                .join("transfer/0.1.0")
+                .join(format!("{}.json", "ab".repeat(32)))
+        );
     }
 
     #[test]
@@ -185,7 +185,10 @@ mod tests {
         let path = store.path_for(&mock_id);
         assert!(path.starts_with(dir.path().join("_foreign")));
         assert!(
-            path.file_name().unwrap().to_string_lossy().ends_with(".json"),
+            path.file_name()
+                .unwrap()
+                .to_string_lossy()
+                .ends_with(".json"),
             "foreign id path must end in .json: {}",
             path.display()
         );

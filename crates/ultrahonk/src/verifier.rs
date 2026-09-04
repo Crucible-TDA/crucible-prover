@@ -77,9 +77,7 @@ impl Verifier for UltraHonkVerifier {
 
     fn verify(&self, request: &VerificationRequest) -> Result<VerificationOutcome, VerifierError> {
         // 1. Routing: this verifier only understands UltraHonk proofs.
-        if request.proof.format.as_str() != PROOF_FORMAT_TAG
-            || request.backend != self.backend()
-        {
+        if request.proof.format.as_str() != PROOF_FORMAT_TAG || request.backend != self.backend() {
             return Ok(VerificationOutcome::rejected(
                 VerificationFailure::BackendMismatch,
             ));
@@ -217,7 +215,11 @@ impl Verifier for UltraHonkVerifier {
 
 /// Writes `proof.json` from the proof blob's field words, embedding the
 /// digest of the resolved verification key.
-fn write_proof_json(path: &std::path::Path, proof: &ProofBlob, vk: &crate::exec::VkDocument) -> Result<(), VerifierError> {
+fn write_proof_json(
+    path: &std::path::Path,
+    proof: &ProofBlob,
+    vk: &crate::exec::VkDocument,
+) -> Result<(), VerifierError> {
     let words: Vec<String> = proof
         .bytes
         .chunks(WORD_BYTES)
@@ -229,25 +231,34 @@ fn write_proof_json(path: &std::path::Path, proof: &ProofBlob, vk: &crate::exec:
         "bb_version": vk.bb_version,
         "scheme": vk.scheme,
     });
-    std::fs::write(path, serde_json::to_string(&doc).map_err(|e| VerifierError::Internal {
-        reason: format!("cannot serialize proof document: {e}"),
-    })?)
+    std::fs::write(
+        path,
+        serde_json::to_string(&doc).map_err(|e| VerifierError::Internal {
+            reason: format!("cannot serialize proof document: {e}"),
+        })?,
+    )
     .map_err(|e| VerifierError::Internal {
         reason: format!("cannot write proof document: {e}"),
     })
 }
 
 /// Writes `vk.json` verbatim from the resolved verification key.
-fn write_vk_json(path: &std::path::Path, vk: &crate::exec::VkDocument) -> Result<(), VerifierError> {
+fn write_vk_json(
+    path: &std::path::Path,
+    vk: &crate::exec::VkDocument,
+) -> Result<(), VerifierError> {
     let doc = json!({
         "vk": vk.vk,
         "hash": vk.hash,
         "bb_version": vk.bb_version,
         "scheme": vk.scheme,
     });
-    std::fs::write(path, serde_json::to_string(&doc).map_err(|e| VerifierError::Internal {
-        reason: format!("cannot serialize verification key: {e}"),
-    })?)
+    std::fs::write(
+        path,
+        serde_json::to_string(&doc).map_err(|e| VerifierError::Internal {
+            reason: format!("cannot serialize verification key: {e}"),
+        })?,
+    )
     .map_err(|e| VerifierError::Internal {
         reason: format!("cannot write verification key: {e}"),
     })
@@ -273,9 +284,12 @@ fn write_public_inputs_json(
         "bb_version": crate::TESTED_BB_VERSION,
         "scheme": SCHEME_ULTRA_HONK,
     });
-    std::fs::write(path, serde_json::to_string(&doc).map_err(|e| VerifierError::Internal {
-        reason: format!("cannot serialize public inputs: {e}"),
-    })?)
+    std::fs::write(
+        path,
+        serde_json::to_string(&doc).map_err(|e| VerifierError::Internal {
+            reason: format!("cannot serialize public inputs: {e}"),
+        })?,
+    )
     .map_err(|e| VerifierError::Internal {
         reason: format!("cannot write public inputs: {e}"),
     })

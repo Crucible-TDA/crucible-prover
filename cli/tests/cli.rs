@@ -24,7 +24,10 @@ fn repo_catalog() -> PathBuf {
 
 /// Runs the binary with `args`, returning the output.
 fn run(args: &[&str]) -> Output {
-    Command::new(bin()).args(args).output().expect("binary runs")
+    Command::new(bin())
+        .args(args)
+        .output()
+        .expect("binary runs")
 }
 
 fn stdout(output: &Output) -> String {
@@ -78,9 +81,18 @@ fn circuits_list_lists_all_five_operations() {
 #[test]
 fn circuits_check_fails_when_artifacts_are_missing() {
     let dir = tempfile::tempdir().expect("temp dir");
-    let output = run(&["circuits", "check", "--circuits", dir.path().to_str().unwrap()]);
+    let output = run(&[
+        "circuits",
+        "check",
+        "--circuits",
+        dir.path().to_str().unwrap(),
+    ]);
     assert!(!output.status.success());
-    assert!(stderr(&output).contains("missing artifact"), "{}", stderr(&output));
+    assert!(
+        stderr(&output).contains("missing artifact"),
+        "{}",
+        stderr(&output)
+    );
 }
 
 #[test]
@@ -91,16 +103,29 @@ fn circuits_check_passes_with_parseable_artifacts() {
     for op in ["register", "deposit", "merge", "transfer", "withdraw"] {
         std::fs::write(target.join(format!("{op}.json")), "{}").expect("artifact written");
     }
-    let output = run(&["circuits", "check", "--circuits", dir.path().to_str().unwrap()]);
+    let output = run(&[
+        "circuits",
+        "check",
+        "--circuits",
+        dir.path().to_str().unwrap(),
+    ]);
     assert!(output.status.success(), "stderr: {}", stderr(&output));
-    assert!(stdout(&output).contains("all 5 operation circuits"), "{}", stdout(&output));
+    assert!(
+        stdout(&output).contains("all 5 operation circuits"),
+        "{}",
+        stdout(&output)
+    );
 }
 
 #[test]
 fn circuits_compile_rejects_unknown_operation() {
     let output = run(&["circuits", "compile", "bogus"]);
     assert!(!output.status.success());
-    assert!(stderr(&output).contains("unknown circuit"), "{}", stderr(&output));
+    assert!(
+        stderr(&output).contains("unknown circuit"),
+        "{}",
+        stderr(&output)
+    );
 }
 
 // --- prove / verify ---------------------------------------------------------
@@ -121,11 +146,7 @@ fn prove_and_verify_round_trip_through_the_mock_backend() {
         "--out",
         envelope.to_str().unwrap(),
     ]);
-    assert!(
-        proved.status.success(),
-        "prove failed: {}",
-        stderr(&proved)
-    );
+    assert!(proved.status.success(), "prove failed: {}", stderr(&proved));
     assert!(envelope.is_file(), "envelope must be written");
 
     let verified = run(&["verify", envelope.to_str().unwrap()]);
@@ -134,7 +155,11 @@ fn prove_and_verify_round_trip_through_the_mock_backend() {
         "verify failed: {}",
         stderr(&verified)
     );
-    assert!(stdout(&verified).contains("verified"), "{}", stdout(&verified));
+    assert!(
+        stdout(&verified).contains("verified"),
+        "{}",
+        stdout(&verified)
+    );
 }
 
 #[test]
@@ -162,7 +187,11 @@ fn prove_rejects_a_rejecting_vector_up_front() {
     .expect("vector written");
     let output = run(&["prove", "register", "--vector", vector.to_str().unwrap()]);
     assert!(!output.status.success());
-    assert!(stderr(&output).contains("rejecting vector"), "{}", stderr(&output));
+    assert!(
+        stderr(&output).contains("rejecting vector"),
+        "{}",
+        stderr(&output)
+    );
 }
 
 #[test]
@@ -171,7 +200,11 @@ fn prove_rejects_an_operation_vector_mismatch() {
     let vector = write_register_vector(dir.path(), "mismatch");
     let output = run(&["prove", "transfer", "--vector", vector.to_str().unwrap()]);
     assert!(!output.status.success());
-    assert!(stderr(&output).contains("does not match"), "{}", stderr(&output));
+    assert!(
+        stderr(&output).contains("does not match"),
+        "{}",
+        stderr(&output)
+    );
 }
 
 #[test]
@@ -198,7 +231,11 @@ fn verify_rejects_a_tampered_envelope() {
 
     let verified = run(&["verify", envelope.to_str().unwrap()]);
     assert!(!verified.status.success());
-    assert!(stderr(&verified).contains("rejected"), "{}", stderr(&verified));
+    assert!(
+        stderr(&verified).contains("rejected"),
+        "{}",
+        stderr(&verified)
+    );
 }
 
 #[test]
@@ -208,7 +245,11 @@ fn verify_rejects_a_file_that_is_not_an_envelope() {
     std::fs::write(&bogus, "not an envelope").unwrap();
     let output = run(&["verify", bogus.to_str().unwrap()]);
     assert!(!output.status.success());
-    assert!(stderr(&output).contains("not a valid proof envelope"), "{}", stderr(&output));
+    assert!(
+        stderr(&output).contains("not a valid proof envelope"),
+        "{}",
+        stderr(&output)
+    );
 }
 
 // --- vectors run ------------------------------------------------------------
@@ -228,14 +269,22 @@ fn vectors_run_judges_a_minimal_temp_catalog() {
     write_register_vector(dir.path(), "only");
     let output = run(&["vectors", "run", "--catalog", dir.path().to_str().unwrap()]);
     assert!(output.status.success(), "stderr: {}", stderr(&output));
-    assert!(stdout(&output).contains("1 vector(s) judged"), "{}", stdout(&output));
+    assert!(
+        stdout(&output).contains("1 vector(s) judged"),
+        "{}",
+        stdout(&output)
+    );
 }
 
 #[test]
 fn vectors_run_rejects_an_unknown_operation_filter() {
     let output = run(&["vectors", "run", "--op", "bogus"]);
     assert!(!output.status.success());
-    assert!(stderr(&output).contains("no vectors found"), "{}", stderr(&output));
+    assert!(
+        stderr(&output).contains("no vectors found"),
+        "{}",
+        stderr(&output)
+    );
 }
 
 // --- envelope compatibility with the committed catalog ----------------------
@@ -263,8 +312,15 @@ fn prove_and_verify_a_committed_state_bound_vector() {
     ]);
     assert!(proved.status.success(), "prove failed: {}", stderr(&proved));
     let text = stdout(&proved);
-    assert!(text.contains("root ab"), "state root must be reported: {text}");
+    assert!(
+        text.contains("root ab"),
+        "state root must be reported: {text}"
+    );
 
     let verified = run(&["verify", envelope.to_str().unwrap()]);
-    assert!(verified.status.success(), "verify failed: {}", stderr(&verified));
+    assert!(
+        verified.status.success(),
+        "verify failed: {}",
+        stderr(&verified)
+    );
 }

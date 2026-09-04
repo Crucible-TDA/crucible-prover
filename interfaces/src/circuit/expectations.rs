@@ -171,7 +171,10 @@ mod tests {
 
     #[test]
     fn public_names_report_parameters_then_returns() {
-        let names: Vec<&str> = expectations(Operation::Transfer).public_names().copied().collect();
+        let names: Vec<&str> = expectations(Operation::Transfer)
+            .public_names()
+            .copied()
+            .collect();
         assert_eq!(
             names,
             vec![
@@ -192,20 +195,30 @@ mod tests {
     fn state_bound_operations_carry_root_params() {
         // The circuits' state-bound ops fold the ledger root halves into
         // their public surfaces; deposit/register remain token-bound only.
-        assert!(expectations(Operation::Merge)
-            .public_params
-            .contains(&"root_hi"));
-        assert!(expectations(Operation::Transfer)
-            .public_params
-            .contains(&"root_hi"));
-        assert!(expectations(Operation::Withdraw)
-            .public_params
-            .contains(&"root_hi"));
-        assert!(!expectations(Operation::Deposit)
-            .public_params
-            .contains(&"root_hi"));
-        assert!(!expectations(Operation::Register)
-            .public_params
-            .contains(&"root_hi"));
+        assert!(
+            expectations(Operation::Merge)
+                .public_params
+                .contains(&"root_hi")
+        );
+        assert!(
+            expectations(Operation::Transfer)
+                .public_params
+                .contains(&"root_hi")
+        );
+        assert!(
+            expectations(Operation::Withdraw)
+                .public_params
+                .contains(&"root_hi")
+        );
+        assert!(
+            !expectations(Operation::Deposit)
+                .public_params
+                .contains(&"root_hi")
+        );
+        assert!(
+            !expectations(Operation::Register)
+                .public_params
+                .contains(&"root_hi")
+        );
     }
 }

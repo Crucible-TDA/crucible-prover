@@ -10,9 +10,7 @@
 use std::path::PathBuf;
 
 use clap::Args;
-use crucible_interfaces::{
-    VerificationRequest, Verifier,
-};
+use crucible_interfaces::{VerificationRequest, Verifier};
 
 use crate::paths;
 
@@ -29,8 +27,12 @@ pub struct VerifyArgs {
 pub fn run(args: VerifyArgs) -> Result<(), String> {
     let text = std::fs::read_to_string(&args.envelope)
         .map_err(|e| format!("cannot read `{}`: {e}", args.envelope.display()))?;
-    let envelope = crucible_proof_types::ProofEnvelope::from_json(&text)
-        .map_err(|e| format!("`{}` is not a valid proof envelope: {e}", args.envelope.display()))?;
+    let envelope = crucible_proof_types::ProofEnvelope::from_json(&text).map_err(|e| {
+        format!(
+            "`{}` is not a valid proof envelope: {e}",
+            args.envelope.display()
+        )
+    })?;
 
     let request = VerificationRequest::new(
         envelope.metadata.request_id.clone(),
@@ -61,7 +63,10 @@ pub fn run(args: VerifyArgs) -> Result<(), String> {
     if outcome.verified {
         println!(
             "verified: proof {} for circuit {} v{} ({})",
-            envelope.metadata.request_id, envelope.circuit, envelope.circuit_version, envelope.backend
+            envelope.metadata.request_id,
+            envelope.circuit,
+            envelope.circuit_version,
+            envelope.backend
         );
         Ok(())
     } else {
@@ -71,17 +76,22 @@ pub fn run(args: VerifyArgs) -> Result<(), String> {
             .unwrap_or_else(|| "unknown".to_owned());
         Err(format!(
             "proof {} rejected for circuit {} v{} ({}): {reason}",
-            envelope.metadata.request_id, envelope.circuit, envelope.circuit_version, envelope.backend
+            envelope.metadata.request_id,
+            envelope.circuit,
+            envelope.circuit_version,
+            envelope.backend
         ))
     }
 }
 
 /// Resolves the verification-key store directory, creating it on demand.
 fn vk_store_or_default(explicit: &Option<PathBuf>) -> Result<PathBuf, String> {
-    let dir = explicit
-        .clone()
-        .unwrap_or_else(paths::default_vk_store);
-    std::fs::create_dir_all(&dir)
-        .map_err(|e| format!("cannot create verification-key store `{}`: {e}", dir.display()))?;
+    let dir = explicit.clone().unwrap_or_else(paths::default_vk_store);
+    std::fs::create_dir_all(&dir).map_err(|e| {
+        format!(
+            "cannot create verification-key store `{}`: {e}",
+            dir.display()
+        )
+    })?;
     Ok(dir)
 }

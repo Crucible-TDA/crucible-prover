@@ -15,8 +15,8 @@
 use std::path::PathBuf;
 
 use clap::Subcommand;
-use crucible_interfaces::prover::Prover;
 use crucible_interfaces::Verifier;
+use crucible_interfaces::prover::Prover;
 use crucible_prover_core::ProverService;
 use crucible_vectors::load_catalog;
 
@@ -73,10 +73,16 @@ fn run_catalog(op: Option<&str>, catalog: Option<PathBuf>) -> Result<(), String>
         let result = judge(&service, &verifier, vector);
         match result {
             Ok(()) => {
-                println!("ok   {} ({}/{})", vector.id, vector.operation, vector.category);
+                println!(
+                    "ok   {} ({}/{})",
+                    vector.id, vector.operation, vector.category
+                );
             }
             Err(reason) => {
-                println!("FAIL {} ({}/{}): {reason}", vector.id, vector.operation, vector.category);
+                println!(
+                    "FAIL {} ({}/{}): {reason}",
+                    vector.id, vector.operation, vector.category
+                );
                 failed.push((vector.id.clone(), reason));
             }
         }
@@ -121,7 +127,9 @@ fn judge(
 
     if vector.expect_verification {
         let outcome = verifier
-            .verify(&crucible_interfaces::VerificationRequest::from_response(&response))
+            .verify(&crucible_interfaces::VerificationRequest::from_response(
+                &response,
+            ))
             .map_err(|e| format!("verifier failed to run: {e}"))?;
         if !outcome.verified {
             return Err(format!(

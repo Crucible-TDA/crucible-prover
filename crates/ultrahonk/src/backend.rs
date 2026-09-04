@@ -8,8 +8,8 @@
 
 use crucible_interfaces::{BackendId, CircuitId, Operation, Version};
 
-use crate::errors::UltraHonkError;
 use crate::TESTED_BB_VERSION;
+use crate::errors::UltraHonkError;
 
 /// The backend id used on the wire and in providers.
 pub const BACKEND_ID: &str = "ultrahonk";

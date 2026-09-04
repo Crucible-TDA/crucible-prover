@@ -109,7 +109,8 @@ impl ProofProvider for UltraHonkProvider {
         if request.backend != self.backend() {
             return Err(ProviderError::ProofGeneration {
                 backend: request.backend.to_string(),
-                reason: "request targets a different backend than the ultrahonk provider".to_owned(),
+                reason: "request targets a different backend than the ultrahonk provider"
+                    .to_owned(),
             });
         }
         if !self.supports(&request.circuit, &request.circuit_version) {
@@ -171,10 +172,11 @@ impl ProofProvider for UltraHonkProvider {
             &request.circuit_version,
             &artifact_checksum,
         );
-        let vk_id = crucible_interfaces::VerificationKeyId::new(vk_id)
-            .map_err(|e| ProviderError::Internal {
+        let vk_id = crucible_interfaces::VerificationKeyId::new(vk_id).map_err(|e| {
+            ProviderError::Internal {
                 reason: format!("cannot form verification key id: {e}"),
-            })?;
+            }
+        })?;
 
         // Solve the witness against the real circuit package in a scratch
         // workspace. The scratch (holding the private Prover.toml) must
@@ -227,11 +229,11 @@ impl ProofProvider for UltraHonkProvider {
                 backend: BackendId::ULTRAHONK.to_owned(),
                 reason,
             })?;
-            public_outputs.insert((*name).to_owned(), value).map_err(|e| {
-                ProviderError::Internal {
+            public_outputs
+                .insert((*name).to_owned(), value)
+                .map_err(|e| ProviderError::Internal {
                     reason: format!("cannot assemble public outputs: {e}"),
-                }
-            })?;
+                })?;
         }
 
         // Persist the verification key under its id so verifiers can resolve
@@ -246,12 +248,14 @@ impl ProofProvider for UltraHonkProvider {
                 })?;
         }
 
-        let proof_bytes = artifacts.proof.proof_bytes().map_err(|e| {
-            ProviderError::ProofGeneration {
-                backend: BackendId::ULTRAHONK.to_owned(),
-                reason: format!("cannot decode proof bytes: {e}"),
-            }
-        })?;
+        let proof_bytes =
+            artifacts
+                .proof
+                .proof_bytes()
+                .map_err(|e| ProviderError::ProofGeneration {
+                    backend: BackendId::ULTRAHONK.to_owned(),
+                    reason: format!("cannot decode proof bytes: {e}"),
+                })?;
 
         Ok(ProofResponse::new(
             request.request_id.clone(),
@@ -311,11 +315,12 @@ fn solve_witness(
     // witness encoder writes it 0600. Values are hex-prefixed so nargo never
     // misreads them as decimal (see the witness crate encoder).
     let data = crucible_witness::WitnessData::from_request(request);
-    crucible_witness::encoder::write_prover_toml(&data, &package_dir.join("Prover.toml"))
-        .map_err(|e| ProviderError::ProofGeneration {
+    crucible_witness::encoder::write_prover_toml(&data, &package_dir.join("Prover.toml")).map_err(
+        |e| ProviderError::ProofGeneration {
             backend: BackendId::ULTRAHONK.to_owned(),
             reason: format!("cannot write witness Prover.toml: {e}"),
-        })?;
+        },
+    )?;
 
     let captured = nargo
         .execute_captured(&package_dir, "Prover", "witness")
@@ -331,10 +336,12 @@ fn solve_witness(
                 .to_owned(),
         });
     }
-    captured.witness_path.ok_or_else(|| ProviderError::ProofGeneration {
-        backend: BackendId::ULTRAHONK.to_owned(),
-        reason: "nargo reported a solved witness but wrote no witness file".to_owned(),
-    })
+    captured
+        .witness_path
+        .ok_or_else(|| ProviderError::ProofGeneration {
+            backend: BackendId::ULTRAHONK.to_owned(),
+            reason: "nargo reported a solved witness but wrote no witness file".to_owned(),
+        })
 }
 
 /// Parses one backend field word into a canonical [`FieldValue`].
@@ -363,10 +370,16 @@ fn copy_package_sources(
             ));
         }
     }
-    copy_tree(&package.join("Nargo.toml"), &scratch_root.join(op).join("Nargo.toml"))?;
+    copy_tree(
+        &package.join("Nargo.toml"),
+        &scratch_root.join(op).join("Nargo.toml"),
+    )?;
     copy_tree(&package.join("src"), &scratch_root.join(op).join("src"))?;
     let lib = circuits_root.join("lib");
-    copy_tree(&lib.join("Nargo.toml"), &scratch_root.join("lib").join("Nargo.toml"))?;
+    copy_tree(
+        &lib.join("Nargo.toml"),
+        &scratch_root.join("lib").join("Nargo.toml"),
+    )?;
     copy_tree(&lib.join("src"), &scratch_root.join("lib").join("src"))?;
     Ok(())
 }
@@ -386,8 +399,13 @@ fn copy_tree(from: &std::path::Path, to: &std::path::Path) -> Result<(), String>
             std::fs::create_dir_all(parent)
                 .map_err(|e| format!("cannot create `{}`: {e}", parent.display()))?;
         }
-        std::fs::copy(from, to)
-            .map_err(|e| format!("cannot copy `{}` -> `{}`: {e}", from.display(), to.display()))?;
+        std::fs::copy(from, to).map_err(|e| {
+            format!(
+                "cannot copy `{}` -> `{}`: {e}",
+                from.display(),
+                to.display()
+            )
+        })?;
     }
     Ok(())
 }
@@ -405,7 +423,10 @@ mod tests {
             "6871944eb38ea75866d42609302692a55e12cf7620a50f2cf03381b9b382b72"
         );
         assert_eq!(field_from_word("0x00").unwrap().as_hex(), "0");
-        assert_eq!(field_from_word("0x746f6b656e").unwrap().as_hex(), "746f6b656e");
+        assert_eq!(
+            field_from_word("0x746f6b656e").unwrap().as_hex(),
+            "746f6b656e"
+        );
     }
 
     #[test]
