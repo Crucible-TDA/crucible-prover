@@ -16,7 +16,7 @@ use crucible_interfaces::proof_provider::ProofProvider;
 use crucible_interfaces::{BackendId, ProofRequest, ProviderError};
 use crucible_noir::NoirToolchain;
 use crucible_ultrahonk::{
-    BbToolchain, UltraHonkConfig, UltraHonkProvider, VkStore, VerificationKeyIdPolicy,
+    BbToolchain, UltraHonkConfig, UltraHonkProvider, VerificationKeyIdPolicy, VkStore,
 };
 use crucible_vectors::TestVector;
 use tempfile::TempDir;
@@ -58,9 +58,9 @@ fn register_request() -> ProofRequest {
         &Path::new(env!("CARGO_MANIFEST_DIR")).join("../test-vectors"),
     )
     .expect("catalog loads")
-        .into_iter()
-        .find(|v| v.id == "register-valid-001")
-        .expect("register-valid-001 exists");
+    .into_iter()
+    .find(|v| v.id == "register-valid-001")
+    .expect("register-valid-001 exists");
     vector.to_request_for(BackendId::ULTRAHONK)
 }
 
@@ -81,7 +81,9 @@ fn pinned_artifact_proves_a_register_witness() {
     // Sanity: the helper copied the artifact into `<root>/register/`.
     assert!(root.join("register/manifest.json").exists());
 
-    let response = provider.generate(&request).expect("pinned artifact must prove");
+    let response = provider
+        .generate(&request)
+        .expect("pinned artifact must prove");
     assert_eq!(response.backend.as_str(), BackendId::ULTRAHONK);
     assert_eq!(response.proof.format.as_str(), "ultrahonk-v1");
     let expected = VerificationKeyIdPolicy::id_for(
@@ -171,8 +173,7 @@ fn undeclared_extra_file_is_rejected() {
     }
     let work = tempfile::tempdir().expect("temp dir");
     let root = copy_pinned("register", work.path());
-    std::fs::write(root.join("register/sneaky.txt"), b"not declared anywhere")
-        .expect("extra file");
+    std::fs::write(root.join("register/sneaky.txt"), b"not declared anywhere").expect("extra file");
 
     let (provider, _store) = provider_for(&root);
     let err = provider
