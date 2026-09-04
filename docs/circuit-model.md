@@ -51,10 +51,10 @@ Adds confidential value to an owned commitment.
 Consolidates two owned commitments into one.
 
 - **public:** `token_address`, `account_address`, `commitment_a`,
-  `commitment_b`
+  `commitment_b`, `root_hi`, `root_lo`
 - **private:** `account_sk`, both openings, `blinding`
 - **proves:** ownership; both commitments open to their witness; emits two
-  token-bound nullifiers.
+  token- and state-bound nullifiers (root halves folded in).
 - **returns:** merged commitment over `amount_a + amount_b`
 
 ### transfer
@@ -62,13 +62,13 @@ Consolidates two owned commitments into one.
 Moves confidential value from the sender to the recipient.
 
 - **public:** `token_address`, `sender_address`, `recipient_address`,
-  `old_sender_commitment`
+  `old_sender_commitment`, `root_hi`, `root_lo`
 - **private:** `sender_sk`, `amount`, sender opening, `recipient_blinding`,
   `change_blinding`
 - **proves:** sender ownership; the sender's commitment opens to
   `old_amount`; `amount <= old_amount` (no overdraw); `amount` in range.
 - **returns:** recipient commitment over `amount`, change commitment over
-  `old_amount - amount`, nullifier.
+  `old_amount - amount`, token- and state-bound nullifier.
 
 Recipient *binding* — forcing the produced recipient commitment to actually
 belong to the public recipient address — is a protocol-level statement that
@@ -79,11 +79,12 @@ below and `docs/security.md`).
 
 Redeems confidential value out of the domain.
 
-- **public:** `token_address`, `account_address`, `commitment`
+- **public:** `token_address`, `account_address`, `commitment`,
+  `root_hi`, `root_lo`
 - **private:** `account_sk`, `amount`, `old_amount`, `old_blinding`,
   `change_blinding`
 - **proves:** ownership; the commitment opens to `old_amount`;
-  `amount <= old_amount`; emits a token-bound nullifier.
+  `amount <= old_amount`; emits a token- and state-bound nullifier.
 - **returns:** change commitment over `old_amount - amount`, nullifier.
 
 ## Invariants enforced in-circuit
@@ -98,9 +99,13 @@ Redeems confidential value out of the domain.
    the consumed ones (commitments are computed, not chosen).
 6. **Double-spend protection** — consuming a commitment emits a nullifier.
 
-State-root membership of consumed commitments and anti-replay context
-(state binding) are enforced at the proof-binding layer rather than
-in-circuit in the scaffold; see `docs/security.md` and `docs/threat-model.md`.
+State-bound operations (merge, transfer, withdraw) scope their nullifiers
+to token **and** state: the two halves of the ledger state root are public
+inputs folded into every emitted nullifier, so a proof cut for root A is
+cryptographically rejected against root B (see `docs/ultrahonk.md`). Tree
+*membership* of the consumed commitments in that root is a separate
+statement (it needs an inclusion proof) and lands with the membership
+workstream; register and deposit remain state-unbound by design.
 
 ## Scope honesty
 

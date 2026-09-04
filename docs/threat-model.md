@@ -41,9 +41,10 @@ happen, or for a context it does not commit to.
 by design — it is TEST ONLY); context binding is checked field-by-field at
 verification; `prove_and_verify` round-trips every proof it returns.
 
-**Status**: binding enforced today (mock); cryptographic soundness lands
-with the Barretenberg adapter. Tests: `tests/proofs/*`, `tests/verification/*`,
-`tests/security/proof_malleability.rs`.
+**Status**: enforced today — cryptographic soundness via the Barretenberg
+adapter (`UltraHonkProvider`/`UltraHonkVerifier`), with the mock exercising
+the same rejection paths in CI. Tests: `tests/tests/real_backend.rs`,
+`tests/tests/ultrahonk.rs`, `tests/security/proof_malleability.rs`.
 
 ### A3. The replayer / stale-state submitter
 **Goal**: submit a previously valid proof after the state it applies to has

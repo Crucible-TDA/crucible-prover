@@ -107,9 +107,10 @@ raw stderr.
   `register` / `transfer` circuit packages;
 - `bb prove` → `bb verify` round trips;
 - **binding**: a register proof's single public input must equal the
-  committed account address; a transfer proof exposes exactly seven public
-  words — token, sender, recipient, old commitment, then the three returned
-  values — checked word by word against the fixture;
+  committed account address; a transfer proof exposes exactly nine public
+  words — token, sender, recipient, old commitment, `root_hi`, `root_lo`,
+  then the three returned values — checked word by word against the
+  fixture;
 - **rejection**: tampered proofs, tampered/wrong verification keys, and
   proofs submitted against changed public inputs all fail verification.
 
@@ -117,7 +118,7 @@ These are the cryptographic counterparts of the wrong-context rejections
 the mock backend can only simulate, and they run in the CI circuits job
 where the validated toolchain pair is installed.
 
-## Trait-level wiring and its one honest gap
+## Trait-level wiring and state binding
 
 `UltraHonkProvider`/`UltraHonkVerifier` implement the same
 [`ProofProvider`]/[`Verifier`] seams `crucible-mock` implements, so
@@ -125,12 +126,24 @@ simulators and scenario runners swap backends without changing code. The
 `VkStore` is the resolution layer: a proof never carries key material —
 verifiers resolve it by the id stamped on the response.
 
-The current circuits do **not** commit to a state root, so the state
-reference on a real response is repository-level context, not a
-cryptographic binding. Stale-state and replay rejections therefore remain
-mock-authoritative until the circuits fold state roots into their public
-inputs; `tests/tests/real_backend.rs` pins that limitation so the flip is
-forced when it lands.
+For the state-bound operations (merge, transfer, withdraw) the state
+reference is now a **cryptographic** binding: the circuits fold the two
+halves of the state root into their public inputs and into every emitted
+nullifier (see `docs/circuit-model.md`). A proof cut for root A therefore
+embeds different public words than one cut for root B.
+`UltraHonkVerifier` enforces the binding at two layers:
+
+1. **Structural** — before `bb` runs, the submitted state reference must
+   agree with the `root_hi`/`root_lo` words the proof committed to; a
+   stale submission is rejected with `StateReferenceMismatch`, one stripped
+   of its binding with `MissingStateBinding`.
+2. **Cryptographic** — if the submitter rewrites both the state reference
+   and the root words to root B, `bb` rejects: the proof was cut for root A.
+
+`tests/tests/real_backend.rs` exercises both layers, plus the honest
+counterpart: register proofs remain deliberately unbound (no state is
+consumed) and deposit carries only an envelope-level reference — each
+pinned by regression tests so the boundary cannot silently widen.
 
 The trait-seam suite needs `nargo` + `bb` on PATH and compiled bytecode
 under `circuits/target/` (CI compiles before running it).

@@ -38,9 +38,12 @@ test-vectors/
 ├── deposit/   valid/  invalid/
 ├── merge/     valid/  invalid/
 ├── transfer/  valid/  invalid/  insufficient-balance/  wrong-owner/
-├── withdraw/  valid/  insufficient-balance/  wrong-owner/
-└── cross-operation/   (future: replay/stale-state against proofs)
+├── withdraw/  valid/  invalid/  insufficient-balance/  wrong-owner/
 ```
+
+Stale-state and replay against proofs are exercised cryptographically in
+`tests/tests/real_backend.rs` rather than as JSON fixtures (a stale vector
+would need proofs re-solved per root).
 
 Directory names mirror the `category` field; file ids are globally unique
 (`<op>-<category>-<n>`).
