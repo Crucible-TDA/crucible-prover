@@ -32,8 +32,9 @@ circuits/
 
 ## Toolchain
 
-The workspace is developed against **nargo 1.0.0-beta.26** (see
-`rust-toolchain.toml`? no — see `scripts/check-circuits.sh`). The compiler
+The workspace is developed against **nargo 1.0.0-beta.26** (install with
+`scripts/setup-noir.sh`, verify with `scripts/check-circuits.sh`; the pin
+mirrors `TESTED_NARGO_VERSION` in `crates/noir/src/lib.rs`). The compiler
 version is declared in every package's `Nargo.toml`; `nargo` enforces it.
 
 ## Test vectors

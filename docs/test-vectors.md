@@ -38,12 +38,20 @@ test-vectors/
 ├── deposit/   valid/  invalid/
 ├── merge/     valid/  invalid/
 ├── transfer/  valid/  invalid/  insufficient-balance/  wrong-owner/
-├── withdraw/  valid/  invalid/  insufficient-balance/  wrong-owner/
+├── withdraw/  valid/  insufficient-balance/  wrong-owner/
 ```
 
-Stale-state and replay against proofs are exercised cryptographically in
-`tests/tests/real_backend.rs` rather than as JSON fixtures (a stale vector
-would need proofs re-solved per root).
+The reject categories map onto the witness shape: `invalid` means a witness
+whose commitment opening does not match its public commitment (deposit,
+merge, transfer), `wrong-owner` means the public address is not derivable
+from the private secret (register, transfer, withdraw), and
+`insufficient-balance` means the operation overdraws the consumed
+commitment (transfer, withdraw). Proof-level categories — `stale-state`,
+`replay`, `malformed-proof` — cannot be expressed as a witness file (they
+need a proof cut against one context and submitted against another), so
+they are exercised cryptographically in `tests/tests/real_backend.rs` and
+the security suite instead of as JSON fixtures; the schema still admits
+them for consumers that drive proofs per category.
 
 Directory names mirror the `category` field; file ids are globally unique
 (`<op>-<category>-<n>`).
