@@ -56,6 +56,23 @@ re-pins artifacts from the current compiled bytecode (run
 reproduces byte-identical manifests. A circuit change that forgets to
 re-pin fails CI via the fresh-compile diff gate.
 
+### `artifacts inspect`
+
+```bash
+crucible-prover artifacts inspect          # all five, one report each
+crucible-prover artifacts inspect transfer # one op
+crucible-prover artifacts inspect transfer --root /path
+```
+
+Prints one pinned artifact's full provenance — circuit, circuit and
+artifact versions, backend, verification-key id, backend metadata, and
+each declared file's role, byte size, and SHA-256 — after running it
+through the same strict loader as `check`. A tampered artifact reports
+`FAIL` with the reason and still prints the raw manifest for
+diagnostics; the exit code is non-zero when anything failed. This is
+the `artifact inspect` surface for answering *which circuit produced
+this proof* (see `docs/artifacts.md`).
+
 ### `prove`
 
 ```bash

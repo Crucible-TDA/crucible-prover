@@ -46,6 +46,22 @@ pub enum ArtifactsCommand {
         #[arg(long, value_name = "DIR")]
         root: Option<PathBuf>,
     },
+    /// Inspect one pinned artifact: manifest provenance and per-file
+    /// checksums, verified through the strict loader.
+    ///
+    /// Answers the four provenance questions of any proof produced from the
+    /// artifact (circuit, versions, backend, verification key) and shows
+    /// each declared file's SHA-256 and byte size. Runs the same strict
+    /// integrity verification as `check`, so a tampered artifact is reported
+    /// here too — with the manifest still printed for diagnostics.
+    Inspect {
+        /// Circuit to inspect; defaults to all five.
+        #[arg(value_name = "OP")]
+        op: Option<String>,
+        /// Pinned artifact root (defaults to `<repo>/artifacts/circuits`).
+        #[arg(long, value_name = "DIR")]
+        root: Option<PathBuf>,
+    },
 }
 
 /// The manifest filename the loader expects inside an artifact directory.
@@ -55,6 +71,7 @@ pub fn run(command: ArtifactsCommand, circuits: &Path) -> Result<(), String> {
     match command {
         ArtifactsCommand::Check { root } => check(root),
         ArtifactsCommand::Generate { op, root } => generate(circuits, op.as_deref(), root),
+        ArtifactsCommand::Inspect { op, root } => inspect(op.as_deref(), root),
     }
 }
 
@@ -169,4 +186,97 @@ fn generate(
         );
     }
     Ok(())
+}
+
+/// Resolves the operations to inspect, validating explicit names.
+fn selected_ops(op: Option<&str>) -> Result<Vec<String>, String> {
+    match op {
+        Some(name) => {
+            if !OPERATIONS.contains(&name) {
+                return Err(format!(
+                    "unknown circuit `{name}` (expected one of {})",
+                    OPERATIONS.join(", ")
+                ));
+            }
+            Ok(vec![name.to_owned()])
+        }
+        None => Ok(OPERATIONS.iter().map(|s| s.to_string()).collect()),
+    }
+}
+
+fn inspect(op: Option<&str>, explicit_root: Option<PathBuf>) -> Result<(), String> {
+    let selected = selected_ops(op)?;
+    let root = artifact_root(&explicit_root);
+    let loader = ArtifactLoader::new();
+    let mut problems = Vec::new();
+
+    for op in &selected {
+        let dir = root.join(op);
+        println!("{op}:");
+        match loader.load(&dir) {
+            Ok(artifact) => {
+                println!(
+                    "  integrity   ok (manifest v{}; {} file(s) verified)",
+                    artifact.manifest.manifest_version,
+                    artifact.manifest.files.len(),
+                );
+                println!(
+                    "  circuit     {} v{}",
+                    artifact.manifest.circuit, artifact.manifest.circuit_version
+                );
+                println!("  artifact    v{}", artifact.manifest.artifact_version);
+                println!("  backend     {}", artifact.manifest.backend);
+                println!(
+                    "  vk id       {}",
+                    artifact
+                        .manifest
+                        .verification_key_id
+                        .as_ref()
+                        .map(|id| id.as_str().to_owned())
+                        .unwrap_or_else(|| "(none)".to_owned())
+                );
+                for (key, value) in &artifact.manifest.backend_metadata {
+                    println!("  metadata    {key}={value}");
+                }
+                println!("  files");
+                for declared in &artifact.manifest.files {
+                    let size = artifact
+                        .files
+                        .iter()
+                        .find(|(path, _)| path == &declared.path)
+                        .map(|(_, bytes)| bytes.len())
+                        .unwrap_or(0);
+                    let kind = declared.kind.as_deref().unwrap_or("file");
+                    println!(
+                        "    {:<20} {:>8} B  kind={:<15} sha256 {}",
+                        declared.path,
+                        size,
+                        kind,
+                        declared.sha256.as_hex()
+                    );
+                }
+            }
+            Err(e) => {
+                // Diagnostics: print the raw manifest too, so a failing
+                // artifact can be inspected even when the loader refuses it.
+                println!("  integrity   FAIL: {e}");
+                let manifest_path = dir.join(MANIFEST_FILENAME);
+                if let Ok(text) = std::fs::read_to_string(&manifest_path) {
+                    println!("  manifest    {text}");
+                }
+                problems.push(format!("{op}: {e}"));
+            }
+        }
+    }
+
+    if problems.is_empty() {
+        Ok(())
+    } else {
+        Err(format!(
+            "{} pinned artifact(s) failed integrity verification (run \
+             `crucible-prover artifacts generate` to re-pin from current \
+             bytecode)",
+            problems.len(),
+        ))
+    }
 }

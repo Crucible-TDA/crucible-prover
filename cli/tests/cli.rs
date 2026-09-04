@@ -415,6 +415,73 @@ fn artifacts_generate_rejects_an_unknown_operation() {
     );
 }
 
+#[test]
+fn artifacts_inspect_reports_the_committed_artifacts() {
+    // The committed pinned artifacts live under <repo>/artifacts/circuits,
+    // the CLI's default root.
+    let output = run(&["artifacts", "inspect"]);
+    assert!(output.status.success(), "stderr: {}", stderr(&output));
+    let text = stdout(&output);
+    for op in ["register", "deposit", "merge", "transfer", "withdraw"] {
+        assert!(
+            text.contains(&format!("{op}:")),
+            "must report `{op}`:\n{text}"
+        );
+    }
+    // Provenance + per-file checksums are printed.
+    assert!(text.contains("integrity   ok"), "{text}");
+    assert!(text.contains("backend     ultrahonk"), "{text}");
+    assert!(text.contains("sha256"), "{text}");
+}
+
+#[test]
+fn artifacts_inspect_flags_a_tampered_artifact() {
+    let work = tempfile::tempdir().expect("temp dir");
+    let circuits = stub_bytecode(work.path());
+    let root = work.path().join("pinned");
+    let generated = run(&[
+        "--circuits",
+        circuits.to_str().unwrap(),
+        "artifacts",
+        "generate",
+        "--root",
+        root.to_str().unwrap(),
+    ]);
+    assert!(generated.status.success());
+
+    // Flip one byte of the pinned transfer bytecode.
+    let bytecode = root.join("transfer").join("transfer.json");
+    let mut bytes = std::fs::read(&bytecode).unwrap();
+    let last = bytes.len() - 1;
+    bytes[last] = if bytes[last] == b'0' { b'1' } else { b'0' };
+    std::fs::write(&bytecode, bytes).unwrap();
+
+    let inspected = run(&[
+        "artifacts",
+        "inspect",
+        "transfer",
+        "--root",
+        root.to_str().unwrap(),
+    ]);
+    assert!(!inspected.status.success());
+    let text = format!("{}{}", stdout(&inspected), stderr(&inspected));
+    assert!(text.contains("integrity   FAIL"), "{text}");
+    assert!(text.contains("checksum"), "{text}");
+    // The manifest is still printed for diagnostics on failure.
+    assert!(text.contains("\"manifest_version\""), "{text}");
+}
+
+#[test]
+fn artifacts_inspect_rejects_an_unknown_operation() {
+    let output = run(&["artifacts", "inspect", "bogus"]);
+    assert!(!output.status.success());
+    assert!(
+        stderr(&output).contains("unknown circuit"),
+        "{}",
+        stderr(&output)
+    );
+}
+
 // --- envelope compatibility with the committed catalog ----------------------
 
 #[test]
