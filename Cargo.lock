@@ -81,6 +81,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "crucible-prover-core"
+version = "0.1.0"
+dependencies = [
+ "crucible-interfaces",
+ "crucible-mock",
+ "crucible-proof-types",
+ "crucible-witness",
+ "serde",
+ "serde_json",
+ "tempfile",
+ "thiserror",
+]
+
+[[package]]
 name = "crucible-witness"
 version = "0.1.0"
 dependencies = [

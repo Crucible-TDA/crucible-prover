@@ -78,17 +78,21 @@ pub fn register_request() -> ProofRequest {
 pub fn deposit_request() -> ProofRequest {
     with_state(
         with_secret(
-            with_public(
+            with_secret(
                 with_public(
-                    base_request(Operation::Deposit, "deposit-1"),
-                    "token_address",
-                    "c0ffee",
+                    with_public(
+                        base_request(Operation::Deposit, "deposit-1"),
+                        "token_address",
+                        "c0ffee",
+                    ),
+                    "old_commitment",
+                    "aa11",
                 ),
-                "old_commitment",
-                "aa11",
+                "amount",
+                "0x1000",
             ),
-            "amount",
-            "0x1000",
+            "blinding",
+            "0xabcdef",
         ),
         state("deposit-1"),
     )
@@ -158,17 +162,25 @@ pub fn transfer_request() -> ProofRequest {
 pub fn withdraw_request() -> ProofRequest {
     with_state(
         with_secret(
-            with_public(
-                with_public(
-                    base_request(Operation::Withdraw, "withdraw-1"),
-                    "account_address",
-                    "dd44",
+            with_secret(
+                with_secret(
+                    with_public(
+                        with_public(
+                            base_request(Operation::Withdraw, "withdraw-1"),
+                            "account_address",
+                            "dd44",
+                        ),
+                        "commitment",
+                        "ee55",
+                    ),
+                    "account_sk",
+                    "0x1020304050607080",
                 ),
-                "commitment",
-                "ee55",
+                "amount",
+                "0x3e8",
             ),
-            "account_sk",
-            "0x1020304050607080",
+            "blinding",
+            "0xfeedface",
         ),
         state("withdraw-1"),
     )
