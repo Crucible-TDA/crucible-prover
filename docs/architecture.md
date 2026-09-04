@@ -19,12 +19,12 @@ interfaces/        stable contracts shared by every crate and sibling repo
 crates/
   proof-types/     versioned wire format (ProofEnvelope)
   witness/         private witness assembly, encoding, redaction
-  artifacts/       artifact manifests, checksums, integrity-gated loading
+  artifacts/       pinned circuit artifacts + manifests (proving input)
   mock/            TEST-ONLY deterministic prover/verifier
   prover-core/     provider registry, dispatch, orchestration
   verifier/        verification dispatch + cross-verifier agreement
   noir/            nargo CLI adapter (compile/execute/info)
-  ultrahonk/       UltraHonk backend identity + calldata encoding
+  ultrahonk/       UltraHonk provider/verifier + VK store + calldata encoding
 schemas/           JSON Schema contracts for the wire formats
 scripts/           check.sh / test-all.sh and helpers
 docs/              this and the other architecture docs
@@ -99,8 +99,12 @@ Noir is not "just another Rust crate". `nargo` is its own toolchain: it
 compiles `circuits/` into ACIR artifacts independently of Cargo, and
 `crucible-noir` is the only crate allowed to execute it. Proof generation
 and verification are not nargo's job in current toolchains — they moved to
-the Barretenberg backend — so the `ultrahonk` crate will consume this
-crate's artifacts and witnesses when the backend adapter lands.
+the Barretenberg backend — so the `ultrahonk` crate consumes `crucible-noir`
+for witness solving and its own `bb` adapter for proving.
+
+Compiled bytecode is pinned: every op's artifact lives in
+`artifacts/circuits/<op>/` next to a manifest declaring its SHA-256, and
+the provider proves only from that pinned root (layer rule 4).
 
 ### 4. Integrity before trust
 
@@ -142,9 +146,9 @@ pathological transitions?*
 ## Repository status
 
 `main` carries the full proving pipeline: interfaces and wire types,
-witness and artifact management, the mock and UltraHonk backends,
-prover-core orchestration, the verification service, the Noir circuits
-with cryptographic state binding, the cross-language vector catalog,
-and the `crucible-prover` CLI. Soroban on-chain verification, Merkle
-membership for consumed commitments, and the testnet adapter remain
-open workstreams on top of these seams.
+witness and artifact management, the mock and UltraHonk backends with
+manifest-pinned artifacts, prover-core orchestration, the verification
+service, the Noir circuits with cryptographic state binding, the
+cross-language vector catalog, and the `crucible-prover` CLI. Soroban
+on-chain verification, Merkle membership for consumed commitments, and
+the testnet adapter remain open workstreams on top of these seams.

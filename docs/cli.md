@@ -36,6 +36,26 @@ SHA-256. `check` exits non-zero listing every missing or unparseable
 artifact. `compile` runs `nargo compile` through the toolchain adapter,
 which also enforces the supported nargo major version.
 
+### `artifacts`
+
+```bash
+crucible-prover artifacts check              # verify all five pinned artifacts
+crucible-prover artifacts check --root /path # against another root
+crucible-prover artifacts generate           # re-pin all five from circuits/target
+crucible-prover artifacts generate transfer  # re-pin one
+```
+
+The proving path only ever consumes the **pinned artifact root**
+(`<repo>/artifacts/circuits/<op>/`): each op's compiled bytecode sits
+next to a `manifest.json` declaring its SHA-256, and the provider
+strict-loads it (see `docs/security.md` G4) before a single byte is
+touched. `check` runs that same strict loader over every pinned
+artifact and exits non-zero on any integrity problem. `generate`
+re-pins artifacts from the current compiled bytecode (run
+`circuits compile` first) and is deterministic — identical bytecode
+reproduces byte-identical manifests. A circuit change that forgets to
+re-pin fails CI via the fresh-compile diff gate.
+
 ### `prove`
 
 ```bash
@@ -49,6 +69,9 @@ Loads a test vector (see `docs/test-vectors.md`), assembles the
 [`ProofRequest`] for the chosen backend, and proves through
 [`ProverService`]. The local round-trip must pass before an envelope is
 written — a proof that fails its own verification is never returned.
+For `--backend ultrahonk`, the bytecode is loaded from the pinned
+artifact root, not ad-hoc paths; a missing or tampered artifact is
+refused before any witness is solved.
 
 - `--backend mock` (default): fast, TEST ONLY, no toolchain required.
 - `--backend ultrahonk`: real UltraHonk proofs. Requires `nargo` and
@@ -102,6 +125,7 @@ All defaults resolve relative to the repository root:
 | `--circuits <dir>` | `<repo>/circuits` |
 | `--catalog <dir>` (`vectors run`) | `<repo>/test-vectors` |
 | `--vk-store <dir>` | `<repo>/artifacts/verification-keys` |
+| `--root <dir>` (`artifacts`) | `<repo>/artifacts/circuits` |
 
 ## Exit codes
 
@@ -123,6 +147,7 @@ only the proof, public inputs, and provenance).
 
 The CLI does not contain: a wallet, a token contract, a simulator, or a
 key-management system. It is the orchestration surface for the
-`crucible-prover` pipeline: circuits, witnesses, proofs, verification,
-and the vector catalog. Soroban on-chain verification and the testnet
-adapter are separate workstreams (see `docs/ultrahonk.md`).
+`crucible-prover` pipeline: circuits, artifacts, witnesses, proofs,
+verification, and the vector catalog. Soroban on-chain verification
+and the testnet adapter are separate workstreams (see
+`docs/ultrahonk.md`).

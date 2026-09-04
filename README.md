@@ -39,7 +39,7 @@ crates/        prover-core, proof-types, witness, artifacts, noir, ultrahonk,
 adapters/      Bridges to the simulator, Soroban, and a testnet
 circuits/      The Noir workspace (shared lib, register/deposit/merge/transfer/
                withdraw circuits, measurement gadgets)
-artifacts/     Compiled circuits, verification keys, manifests
+artifacts/     Pinned compiled circuits + manifests (proving input), VK store
 test-vectors/  Valid/invalid vectors per operation (cross-language fixtures)
 schemas/       JSON schemas for proofs, requests, witnesses, artifacts
 proofs/        Proof fixtures and serialization compatibility material
@@ -94,14 +94,17 @@ Noir (circuits) is a separate toolchain; see `scripts/setup-noir.sh` and
   proof coverage
 - [`docs/test-vectors.md`](docs/test-vectors.md) — the cross-language vector
   catalog and the mock/circuit runner tiers that judge it
+- [`docs/artifacts.md`](docs/artifacts.md) — the pinned-artifact model:
+  manifests, the provider gate, and the CI freshness check
 - [`docs/cli.md`](docs/cli.md) — the `crucible-prover` CLI: circuits,
-  prove/verify, and the catalog gate
+  artifacts, prove/verify, and the catalog gate
 
 ## Quick start (CLI)
 
 ```bash
 cargo run -q -p crucible-cli -- circuits list
 cargo run -q -p crucible-cli -- circuits compile
+cargo run -q -p crucible-cli -- artifacts check
 cargo run -q -p crucible-cli -- prove transfer \
   --vector test-vectors/transfer/valid/transfer-valid-001.json \
   --backend mock

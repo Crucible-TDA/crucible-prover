@@ -64,8 +64,18 @@ traversal, and a manifest's own checksum can be pinned externally to detect
 manifest tampering (file hashes alone cannot, since an attacker who can
 replace files can replace the manifest).
 
-**Tested by**: `tests/security/artifact_tampering.rs` and the artifact crate
-unit suite.
+The guarantee is *in the proving path*, not just in a library: the
+UltraHonk provider proves only from the pinned artifact root
+(`artifacts/circuits/<op>/`), strict-loading each artifact through this
+loader before any witness is solved or `bb` runs. `artifacts check`
+re-runs the same load from the CLI, and CI additionally diffs a fresh
+compile against the committed artifacts so a circuit change that forgets
+to re-pin fails the build instead of proving against stale bytecode.
+
+**Tested by**: `tests/security/artifact_tampering.rs`, the artifact crate
+unit suite, and the live `tests/tests/artifacts.rs` (tampered bytecode,
+missing manifest/bytecode, and planted files against a copy of the pinned
+artifact — all rejected before any proving work).
 
 ### G5 — Verification is not assumed equivalent across verifiers
 

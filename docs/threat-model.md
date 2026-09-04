@@ -70,9 +70,19 @@ craft a manifest whose paths escape the artifact directory.
 **Defense**: `crucible-artifacts` verifies every file against its manifest
 before any content is returned, rejects undeclared files in strict mode,
 and validates paths against traversal; manifests carry their own checksum
-pinnable outside the artifact directory.
+pinnable outside the artifact directory. The UltraHonk provider *proves
+only from a pinned artifact root* (`artifacts/circuits/<op>/`): it
+strict-loads the artifact through that loader before a single byte is
+touched, so swapped or tampered bytecode fails with
+`ArtifactIntegrity`/`ArtifactUnavailable` before any witness is solved or
+`bb` runs. A `circuits`-source change that forgets to re-pin its artifact
+fails CI (fresh compile must match the committed bytes byte-for-byte).
 
-**Status**: enforced today. Test: `tests/security/artifact_tampering.rs`.
+**Status**: enforced today — pinned artifacts committed for all five ops,
+verified by `crucible-prover artifacts check`. Tests:
+`tests/security/artifact_tampering.rs` and the live `tests/tests/artifacts.rs`
+(byte-flip, missing manifest/bytecode, and planted-file attacks against a
+copy of the pinned artifact).
 
 ### A5. The misattribute (circuit/key confusion)
 **Goal**: pass off a proof for circuit A (or version 1.0) as a proof for
@@ -94,7 +104,9 @@ toolchain.
 **Defense**: `crucible-noir` never echoes nargo stderr into errors; the
 toolchain adapter checks the nargo version against the supported major
 before running; `crucible-ultrahonk` gates the `bb` major version and CI
-installs the exact `(nargo, bb)` pair pinned in the compatibility matrix.
+installs the exact `(nargo, bb)` pair pinned in the compatibility matrix
+(`noirup -v 1.0.0-beta.26` + `bbup -v 6.0.0-nightly.20260903`) — the same
+versions that generated the committed pinned artifacts.
 
 **Status**: enforced — nargo and bb toolchains are both gated, and the live
 proving suite in `tests/tests/ultrahonk.rs` exercises the validated pairing
