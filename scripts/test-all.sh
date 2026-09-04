@@ -10,6 +10,11 @@ cargo test --workspace
 echo "==> CLI smoke (real binary, real catalog, no toolchain)"
 cargo run -q -p crucible-cli -- circuits list >/dev/null
 cargo run -q -p crucible-cli -- vectors run
+cargo run -q -p crucible-cli -- artifacts check
+cargo run -q -p crucible-cli -- artifacts inspect transfer >/dev/null
+cargo run -q -p crucible-cli -- witness build register \
+    --vector test-vectors/register/valid/register-valid-001.json >/dev/null
+cargo run -q -p crucible-cli -- benchmark register --iterations 1 >/dev/null
 
 echo "==> static checks"
 bash scripts/check.sh
