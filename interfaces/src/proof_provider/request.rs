@@ -176,6 +176,24 @@ impl StateReference {
             label: Some(label.into()),
         }
     }
+
+    /// Splits the 256-bit root into its two 128-bit field halves, `(hi, lo)`.
+    ///
+    /// A full state root (e.g. a SHA-256 or Pedersen tree digest) does not
+    /// fit in one BN254 field element (~254 bits, and values above the
+    /// modulus are invalid), so state-bound circuits commit to the root as
+    /// two field halves. `hi` is the most significant 128 bits (the first 32
+    /// hex characters of the digest), `lo` the least significant (the last
+    /// 32). The split is the single convention shared by fixtures, the
+    /// witness path, and the verifier's state-binding check.
+    pub fn root_halves(&self) -> (crate::circuit::FieldValue, crate::circuit::FieldValue) {
+        let hex = self.root.as_hex();
+        let hi = crate::circuit::FieldValue::from_hex(&hex[..32])
+            .expect("first root half is canonical 128-bit hex");
+        let lo = crate::circuit::FieldValue::from_hex(&hex[32..])
+            .expect("second root half is canonical 128-bit hex");
+        (hi, lo)
+    }
 }
 
 /// Errors that can occur while assembling a [`ProofRequest`].
@@ -425,6 +443,35 @@ mod tests {
         assert!(RootDigest::from_hex(&"zz".repeat(32)).is_err());
         assert_eq!(RootDigest::from_bytes([7u8; 32]).as_hex(), "07".repeat(32));
         assert_eq!(RootDigest::from_bytes([7u8; 32]).to_bytes(), [7u8; 32]);
+    }
+
+    #[test]
+    fn root_halves_split_256_bits_into_two_fields() {
+        // Asymmetric root so hi/lo placement cannot be accidentally swapped.
+        let state = StateReference::new(RootDigest::from_hex(&("ab".repeat(16) + &"cd".repeat(16))).unwrap(), 1);
+        let (hi, lo) = state.root_halves();
+        assert_eq!(hi.as_hex(), "ab".repeat(16));
+        assert_eq!(lo.as_hex(), "cd".repeat(16));
+        // A root of all-one hex digits exercises no trimming; all-zero halves
+        // canonicalize to the minimal "0" form.
+        let zero_hi = StateReference::new(RootDigest::from_hex(&("00".repeat(16) + &"ab".repeat(16))).unwrap(), 1);
+        let (zhi, zlo) = zero_hi.root_halves();
+        assert_eq!(zhi.as_hex(), "0");
+        assert_eq!(zlo.as_hex(), "ab".repeat(16));
+    }
+
+    #[test]
+    fn root_halves_match_expected_fixture_roots() {
+        // state_root_a() = "ab"*32 => both halves are "ab"*16.
+        let a = StateReference::new(RootDigest::from_hex(&"ab".repeat(32)).unwrap(), 1);
+        let (hi, lo) = a.root_halves();
+        assert_eq!(hi.as_hex(), "ab".repeat(16));
+        assert_eq!(lo.as_hex(), "ab".repeat(16));
+        // state_root_b() = "cd"*32.
+        let b = StateReference::new(RootDigest::from_hex(&"cd".repeat(32)).unwrap(), 2);
+        let (hi, lo) = b.root_halves();
+        assert_eq!(hi.as_hex(), "cd".repeat(16));
+        assert_eq!(lo.as_hex(), "cd".repeat(16));
     }
 
     #[test]

@@ -77,6 +77,8 @@ pub fn expectations(operation: Operation) -> CircuitExpectations {
                 "account_address",
                 "commitment_a",
                 "commitment_b",
+                "root_hi",
+                "root_lo",
             ],
             returns: &["merged_commitment", "nullifier_a", "nullifier_b"],
         },
@@ -94,6 +96,8 @@ pub fn expectations(operation: Operation) -> CircuitExpectations {
                 "sender_address",
                 "recipient_address",
                 "old_sender_commitment",
+                "root_hi",
+                "root_lo",
             ],
             returns: &["recipient_commitment", "change_commitment", "nullifier"],
         },
@@ -105,7 +109,13 @@ pub fn expectations(operation: Operation) -> CircuitExpectations {
                 "old_blinding",
                 "change_blinding",
             ],
-            public_params: &["token_address", "account_address", "commitment"],
+            public_params: &[
+                "token_address",
+                "account_address",
+                "commitment",
+                "root_hi",
+                "root_lo",
+            ],
             returns: &["change_commitment", "nullifier"],
         },
     }
@@ -150,14 +160,13 @@ mod tests {
     fn public_words_count_matches_known_shapes() {
         // register: 1 public param, no returns.
         assert_eq!(expectations(Operation::Register).public_word_count(), 1);
-        // deposit: 3 params + 2 returns.
+        // deposit: 3 params + 2 returns (state-unbound: token-bound nullifier only).
         assert_eq!(expectations(Operation::Deposit).public_word_count(), 5);
-        // merge: 4 params + 3 returns.
-        assert_eq!(expectations(Operation::Merge).public_word_count(), 7);
-        // transfer: 4 params + 3 returns.
-        assert_eq!(expectations(Operation::Transfer).public_word_count(), 7);
-        // withdraw: 3 params + 2 returns.
-        assert_eq!(expectations(Operation::Withdraw).public_word_count(), 5);
+        // merge/transfer/withdraw are state-bound: their public surfaces add
+        // the two state-root halves, so 6/6/5 params + 3/3/2 returns.
+        assert_eq!(expectations(Operation::Merge).public_word_count(), 9);
+        assert_eq!(expectations(Operation::Transfer).public_word_count(), 9);
+        assert_eq!(expectations(Operation::Withdraw).public_word_count(), 7);
     }
 
     #[test]
@@ -170,10 +179,33 @@ mod tests {
                 "sender_address",
                 "recipient_address",
                 "old_sender_commitment",
+                "root_hi",
+                "root_lo",
                 "recipient_commitment",
                 "change_commitment",
                 "nullifier",
             ]
         );
+    }
+
+    #[test]
+    fn state_bound_operations_carry_root_params() {
+        // The circuits' state-bound ops fold the ledger root halves into
+        // their public surfaces; deposit/register remain token-bound only.
+        assert!(expectations(Operation::Merge)
+            .public_params
+            .contains(&"root_hi"));
+        assert!(expectations(Operation::Transfer)
+            .public_params
+            .contains(&"root_hi"));
+        assert!(expectations(Operation::Withdraw)
+            .public_params
+            .contains(&"root_hi"));
+        assert!(!expectations(Operation::Deposit)
+            .public_params
+            .contains(&"root_hi"));
+        assert!(!expectations(Operation::Register)
+            .public_params
+            .contains(&"root_hi"));
     }
 }
