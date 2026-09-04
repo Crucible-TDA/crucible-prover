@@ -10,14 +10,16 @@
 //!    commitments equals the sum that left the old ones (range-bounded, so
 //!    no wrap-around inflation is possible).
 //!
-//! Tree membership of the old commitments in the ledger's state root is a
-//! *separate* statement: it requires the state root as a public input and an
-//! inclusion proof as a witness. That lands with the membership workstream
-//! (see `docs/noir.md`); today the simulator/prover layer binds proofs to
-//! state roots outside the circuit.
+//! State-bound operations (merge, transfer, withdraw) additionally fold the
+//! two halves of the ledger state root into the nullifier preimage (see
+//! [`crate::crypto::nullifier_for_token_state`]), so a proof cut for root A
+//! emits a different nullifier than one cut for root B and cannot be
+//! replayed across ledger states. Tree *membership* of the old commitments
+//! in that root is a separate statement (it needs an inclusion proof) and
+//! lands with the membership workstream (see `docs/noir.md`).
 
 use crate::constraints::range;
-use crate::crypto::{commit, nullifier, nullifier_for_token};
+use crate::crypto::{commit, nullifier, nullifier_for_token, nullifier_for_token_state};
 use crate::types::commitment::Commitment;
 
 /// A commitment that has been consumed by a transition.
@@ -48,6 +50,26 @@ impl Consumed {
     ) -> Consumed {
         Commitment::new(commitment).assert_opens_to(amount, blinding);
         Consumed { nullifier: nullifier_for_token(secret, commitment, token) }
+    }
+
+    /// Token- and state-bound variant: the emitted nullifier folds in
+    /// `token` plus the two halves of the state root the operation runs
+    /// against, so the spend is scoped to one ledger state. Replaying a
+    /// proof cut for root A against root B emits a different nullifier and
+    /// fails state binding (see `docs/ultrahonk.md`).
+    pub fn of_for_token_state(
+        commitment: Field,
+        secret: Field,
+        token: Field,
+        root_hi: Field,
+        root_lo: Field,
+        amount: Field,
+        blinding: Field,
+    ) -> Consumed {
+        Commitment::new(commitment).assert_opens_to(amount, blinding);
+        Consumed {
+            nullifier: nullifier_for_token_state(secret, commitment, token, root_hi, root_lo),
+        }
     }
 }
 
@@ -103,6 +125,20 @@ fn token_consume_nullifier_is_per_token() {
     let a = Consumed::of_for_token(c, 42, 0xaaa, 100, 5);
     let b = Consumed::of_for_token(c, 42, 0xbbb, 100, 5);
     assert(a.nullifier != b.nullifier);
+}
+
+#[test]
+fn state_consume_nullifier_is_scoped_to_the_root() {
+    let c = crate::crypto::commit(100, 5);
+    let hi = 0xababababababababababababababab;
+    let lo = 0xababababababababababababababab;
+    let other = 0xcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd;
+    let a = Consumed::of_for_token_state(c, 42, 0xaaa, hi, lo, 100, 5);
+    let b = Consumed::of_for_token_state(c, 42, 0xaaa, other, other, 100, 5);
+    assert(a.nullifier != b.nullifier);
+    // Same root halves stay deterministic.
+    let a2 = Consumed::of_for_token_state(c, 42, 0xaaa, hi, lo, 100, 5);
+    assert(a.nullifier == a2.nullifier);
 }
 
 #[test]
