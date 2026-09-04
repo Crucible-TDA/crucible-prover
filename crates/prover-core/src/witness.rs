@@ -10,18 +10,47 @@ use crucible_interfaces::{Operation, ProofRequest, PublicInputBag};
 
 /// Private witness names required by each protocol circuit.
 ///
-/// These names follow the Confidential Token operation model: registration
-/// proves knowledge of an account secret; deposit/merge/transfer/withdraw
-/// prove knowledge of the secret(s) guarding the commitments being moved.
-/// The exact per-operation name sets will converge with the real circuits
-/// (see `circuits/`); today they are the contract fixtures exercise.
+/// These are the **private parameters of the circuit's `main`** (see
+/// `circuits/<op>/src/main.nr`): the values a prover must supply beyond the
+/// public context. Registration proves knowledge of an account secret;
+/// deposit/merge/transfer/withdraw prove knowledge of the secret(s) and the
+/// amounts/blindings guarding the commitments being moved. Keeping this list
+/// in lockstep with the circuits is what makes the policy a meaningful
+/// preflight: a request missing any of these names could never produce a
+/// satisfying witness, regardless of backend.
 pub fn required_private_names(operation: Operation) -> &'static [&'static str] {
     match operation {
         Operation::Register => &["account_sk"],
-        Operation::Deposit => &["amount", "blinding"],
-        Operation::Merge => &["opening_a", "opening_b"],
-        Operation::Transfer => &["sender_sk", "amount", "blinding"],
-        Operation::Withdraw => &["account_sk", "amount", "blinding"],
+        Operation::Deposit => &[
+            "account_sk",
+            "old_amount",
+            "old_blinding",
+            "amount",
+            "blinding",
+        ],
+        Operation::Merge => &[
+            "account_sk",
+            "amount_a",
+            "blinding_a",
+            "amount_b",
+            "blinding_b",
+            "blinding",
+        ],
+        Operation::Transfer => &[
+            "sender_sk",
+            "amount",
+            "old_amount",
+            "old_blinding",
+            "recipient_blinding",
+            "change_blinding",
+        ],
+        Operation::Withdraw => &[
+            "account_sk",
+            "amount",
+            "old_amount",
+            "old_blinding",
+            "change_blinding",
+        ],
     }
 }
 
@@ -69,7 +98,17 @@ mod tests {
         let mut request = fixtures::transfer_request();
         request.witness = PrivateWitnessBag::new();
         let missing = missing_private_names(&request);
-        assert_eq!(missing, vec!["sender_sk", "amount", "blinding"]);
+        assert_eq!(
+            missing,
+            vec![
+                "sender_sk",
+                "amount",
+                "old_amount",
+                "old_blinding",
+                "recipient_blinding",
+                "change_blinding"
+            ]
+        );
         assert!(!has_required_witness(&request));
     }
 }

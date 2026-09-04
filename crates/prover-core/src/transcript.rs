@@ -151,7 +151,8 @@ mod tests {
         }
         assert!(content.contains("\"verified\":true"));
         assert!(content.contains("\"circuit\":\"transfer\""));
-        assert!(content.contains("\"private_witness_count\":3"));
+        // The transfer fixture mirrors the real circuit's six private params.
+        assert!(content.contains("\"private_witness_count\":6"));
     }
 
     #[test]

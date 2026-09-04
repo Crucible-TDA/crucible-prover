@@ -75,18 +75,37 @@ pub fn register_request() -> ProofRequest {
 
 /// A valid deposit request: value enters the confidential domain for an
 /// existing account, producing a new commitment. Bound to prior state.
+///
+/// Private witness names mirror the real circuit's `main` parameters
+/// (`circuits/deposit/src/main.nr`); values are synthetic.
 pub fn deposit_request() -> ProofRequest {
     with_state(
         with_secret(
             with_secret(
-                with_public(
-                    with_public(
-                        base_request(Operation::Deposit, "deposit-1"),
-                        "token_address",
-                        "c0ffee",
+                with_secret(
+                    with_secret(
+                        with_secret(
+                            with_public(
+                                with_public(
+                                    with_public(
+                                        base_request(Operation::Deposit, "deposit-1"),
+                                        "token_address",
+                                        "c0ffee",
+                                    ),
+                                    "account_address",
+                                    "a1b2c3d4",
+                                ),
+                                "old_commitment",
+                                "aa11",
+                            ),
+                            "account_sk",
+                            "0x1122334455667788",
+                        ),
+                        "old_amount",
+                        "0x3e8",
                     ),
-                    "old_commitment",
-                    "aa11",
+                    "old_blinding",
+                    "0x05",
                 ),
                 "amount",
                 "0x1000",
@@ -100,24 +119,51 @@ pub fn deposit_request() -> ProofRequest {
 
 /// A valid merge request: multiple commitments consolidate into one.
 /// Bound to prior state.
+///
+/// Private witness names mirror the real circuit's `main` parameters
+/// (`circuits/merge/src/main.nr`); values are synthetic.
 pub fn merge_request() -> ProofRequest {
     with_state(
         with_secret(
             with_secret(
-                with_public(
-                    with_public(
-                        base_request(Operation::Merge, "merge-1"),
-                        "commitment_a",
-                        "1111",
+                with_secret(
+                    with_secret(
+                        with_secret(
+                            with_secret(
+                                with_public(
+                                    with_public(
+                                        with_public(
+                                            with_public(
+                                                base_request(Operation::Merge, "merge-1"),
+                                                "token_address",
+                                                "c0ffee",
+                                            ),
+                                            "account_address",
+                                            "a1b2c3d4",
+                                        ),
+                                        "commitment_a",
+                                        "1111",
+                                    ),
+                                    "commitment_b",
+                                    "2222",
+                                ),
+                                "account_sk",
+                                "0x1122334455667788",
+                            ),
+                            "amount_a",
+                            "0x258",
+                        ),
+                        "blinding_a",
+                        "0x07",
                     ),
-                    "commitment_b",
-                    "2222",
+                    "amount_b",
+                    "0x190",
                 ),
-                "opening_a",
-                "0xaaa",
+                "blinding_b",
+                "0x0b",
             ),
-            "opening_b",
-            "0xbbb",
+            "blinding",
+            "0x0d",
         ),
         state("merge-1"),
     )
@@ -126,31 +172,50 @@ pub fn merge_request() -> ProofRequest {
 /// A valid transfer request: the most security-critical fixture.
 /// Sender and recipient are public; balances and amount are private.
 /// Bound to prior state.
+///
+/// Private witness names mirror the real circuit's `main` parameters
+/// (`circuits/transfer/src/main.nr`); values are synthetic.
 pub fn transfer_request() -> ProofRequest {
     with_state(
         with_secret(
             with_secret(
                 with_secret(
-                    with_public(
-                        with_public(
-                            with_public(
-                                base_request(Operation::Transfer, "transfer-1"),
-                                "sender_address",
-                                "aa11",
+                    with_secret(
+                        with_secret(
+                            with_secret(
+                                with_public(
+                                    with_public(
+                                        with_public(
+                                            with_public(
+                                                base_request(Operation::Transfer, "transfer-1"),
+                                                "token_address",
+                                                "c0ffee",
+                                            ),
+                                            "sender_address",
+                                            "aa11",
+                                        ),
+                                        "recipient_address",
+                                        "bb22",
+                                    ),
+                                    "old_sender_commitment",
+                                    "cc33",
+                                ),
+                                "sender_sk",
+                                "0xdeadbeefcafe",
                             ),
-                            "recipient_address",
-                            "bb22",
+                            "amount",
+                            "0x7f",
                         ),
-                        "old_sender_commitment",
-                        "cc33",
+                        "old_amount",
+                        "0x3e8",
                     ),
-                    "sender_sk",
-                    "0xdeadbeefcafe",
+                    "old_blinding",
+                    "0x05",
                 ),
-                "amount",
-                "0x7f",
+                "recipient_blinding",
+                "0x11",
             ),
-            "blinding",
+            "change_blinding",
             "0x0102030405",
         ),
         state("transfer-1"),
@@ -159,27 +224,42 @@ pub fn transfer_request() -> ProofRequest {
 
 /// A valid withdraw request: value leaves the confidential domain.
 /// Bound to prior state.
+///
+/// Private witness names mirror the real circuit's `main` parameters
+/// (`circuits/withdraw/src/main.nr`); values are synthetic.
 pub fn withdraw_request() -> ProofRequest {
     with_state(
         with_secret(
             with_secret(
                 with_secret(
-                    with_public(
-                        with_public(
-                            base_request(Operation::Withdraw, "withdraw-1"),
-                            "account_address",
-                            "dd44",
+                    with_secret(
+                        with_secret(
+                            with_public(
+                                with_public(
+                                    with_public(
+                                        base_request(Operation::Withdraw, "withdraw-1"),
+                                        "token_address",
+                                        "c0ffee",
+                                    ),
+                                    "account_address",
+                                    "dd44",
+                                ),
+                                "commitment",
+                                "ee55",
+                            ),
+                            "account_sk",
+                            "0x1020304050607080",
                         ),
-                        "commitment",
-                        "ee55",
+                        "amount",
+                        "0x3e8",
                     ),
-                    "account_sk",
-                    "0x1020304050607080",
+                    "old_amount",
+                    "0x3e8",
                 ),
-                "amount",
-                "0x3e8",
+                "old_blinding",
+                "0x05",
             ),
-            "blinding",
+            "change_blinding",
             "0xfeedface",
         ),
         state("withdraw-1"),

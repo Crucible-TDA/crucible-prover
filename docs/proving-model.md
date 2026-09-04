@@ -26,8 +26,11 @@ state_reference   the state root + sequence the proof applies to
    private witness and public inputs; state-bound operations (merge,
    transfer, withdraw) require a state reference.
 2. **Circuit-level** (`prover-core::witness`): the operation's required
-   private names must be present (`transfer` needs `sender_sk`, `amount`,
-   `blinding`, etc.).
+   private names must be present. The list is kept in lockstep with the
+   circuits' `main` parameters — e.g. `transfer` needs `sender_sk`, `amount`,
+   `old_amount`, `old_blinding`, `recipient_blinding`, `change_blinding`.
+   A request missing any required name could never produce a witness that
+   satisfies the circuit, so it is rejected before dispatch.
 3. **Provider-level**: the provider registered for the request's backend
    must declare support for the circuit at the requested version before any
    proving runs.
