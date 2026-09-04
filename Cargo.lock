@@ -116,6 +116,7 @@ dependencies = [
  "crucible-noir",
  "crucible-proof-types",
  "crucible-prover-core",
+ "crucible-ultrahonk",
  "crucible-verifier",
  "crucible-witness",
  "serde",
