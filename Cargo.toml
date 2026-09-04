@@ -10,8 +10,9 @@ members = [
     "crates/verifier",
     "crates/noir",
     "crates/ultrahonk",
+    "tests",
 ]
-default-members = ["interfaces", "crates/proof-types", "crates/witness", "crates/artifacts", "crates/mock", "crates/prover-core", "crates/verifier", "crates/noir", "crates/ultrahonk"]
+default-members = ["interfaces", "crates/proof-types", "crates/witness", "crates/artifacts", "crates/mock", "crates/prover-core", "crates/verifier", "crates/noir", "crates/ultrahonk", "tests"]
 
 [workspace.package]
 version = "0.1.0"

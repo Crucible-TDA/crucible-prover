@@ -39,4 +39,4 @@ pub mod manifest;
 
 pub use errors::ArtifactError;
 pub use loader::ArtifactLoader;
-pub use manifest::ArtifactManifest;
+pub use manifest::{ArtifactManifest, MANIFEST_SCHEMA_VERSION, ManifestFile};

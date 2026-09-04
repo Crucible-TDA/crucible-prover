@@ -1,0 +1,24 @@
+[package]
+name = "crucible-tests"
+description = "Cross-crate integration, security, and invariant test suite for crucible-prover"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+publish = false
+
+[dependencies]
+crucible-interfaces = { path = "../interfaces" }
+crucible-proof-types = { path = "../crates/proof-types" }
+crucible-prover-core = { path = "../crates/prover-core" }
+crucible-verifier = { path = "../crates/verifier" }
+crucible-artifacts = { path = "../crates/artifacts" }
+crucible-mock = { path = "../crates/mock" }
+crucible-witness = { path = "../crates/witness" }
+serde_json.workspace = true
+tempfile.workspace = true
+
+[lints]
+workspace = true

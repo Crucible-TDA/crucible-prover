@@ -289,6 +289,23 @@ impl PublicInputBag {
         self.entries.iter().find(|(n, _)| n == name).map(|(_, v)| v)
     }
 
+    /// Inserts `value` under `name`, replacing an existing entry with the
+    /// same name if present (insertion order is preserved for new names).
+    ///
+    /// Unlike [`PublicInputBag::insert`], this never fails on duplicates: it
+    /// is the mutation primitive for tamper and binding tests, where a value
+    /// must be *changed* rather than added.
+    pub fn set(&mut self, name: impl Into<String>, value: FieldValue) -> Result<(), FieldError> {
+        let name = name.into();
+        validate_name(&name)?;
+        if let Some(entry) = self.entries.iter_mut().find(|(n, _)| n == &name) {
+            entry.1 = value;
+            return Ok(());
+        }
+        self.entries.push((name, value));
+        Ok(())
+    }
+
     /// Iterates over `(name, value)` pairs in insertion order.
     pub fn iter(&self) -> impl Iterator<Item = (&str, &FieldValue)> {
         self.entries.iter().map(|(n, v)| (n.as_str(), v))
@@ -364,6 +381,30 @@ mod tests {
         assert_eq!(bag.len(), 1);
         assert_eq!(bag.get("sender").unwrap().as_hex(), "1");
         assert!(bag.get("recipient").is_none());
+    }
+
+    #[test]
+    fn set_replaces_in_place_and_inserts_new_names() {
+        let mut bag = PublicInputBag::new();
+        bag.insert("sender", FieldValue::from_hex("1").unwrap())
+            .unwrap();
+        bag.insert("amount", FieldValue::from_hex("2").unwrap())
+            .unwrap();
+        // Replace in place: no duplicate, position preserved.
+        bag.set("sender", FieldValue::from_hex("ff").unwrap())
+            .unwrap();
+        assert_eq!(bag.len(), 2);
+        assert_eq!(bag.get("sender").unwrap().as_hex(), "ff");
+        // Insert a brand-new name.
+        bag.set("recipient", FieldValue::from_hex("3").unwrap())
+            .unwrap();
+        assert_eq!(bag.len(), 3);
+        assert_eq!(
+            bag.names().collect::<Vec<_>>(),
+            vec!["sender", "amount", "recipient"]
+        );
+        // Validation still applies.
+        assert!(bag.set("bad name", FieldValue::zero()).is_err());
     }
 
     #[test]

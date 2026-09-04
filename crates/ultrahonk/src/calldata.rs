@@ -109,7 +109,7 @@ impl CalldataEncoder {
             });
         }
         let mut inputs = Vec::with_capacity(count);
-        for (index, chunk) in payload.chunks_exact(FIELD_WIDTH).enumerate() {
+        for (index, chunk) in payload.as_chunks::<FIELD_WIDTH>().0.iter().enumerate() {
             // Field values are unnamed on the wire; name them positionally.
             let hex = hex::encode(chunk);
             let value =

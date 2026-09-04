@@ -107,6 +107,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "crucible-tests"
+version = "0.1.0"
+dependencies = [
+ "crucible-artifacts",
+ "crucible-interfaces",
+ "crucible-mock",
+ "crucible-proof-types",
+ "crucible-prover-core",
+ "crucible-verifier",
+ "crucible-witness",
+ "serde_json",
+ "tempfile",
+]
+
+[[package]]
 name = "crucible-ultrahonk"
 version = "0.1.0"
 dependencies = [
