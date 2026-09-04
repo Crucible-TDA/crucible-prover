@@ -22,8 +22,13 @@ if command -v nargo >/dev/null 2>&1; then
     echo "==> cross-language vector runner (circuit tier)"
     cargo test -p crucible-tests --test vectors
     if command -v bb >/dev/null 2>&1; then
-        echo "==> ultrahonk live proving + trait-seam backend"
-        cargo test -p crucible-tests --test ultrahonk --test real_backend
+        echo "==> pinned artifacts: integrity check"
+        cargo run -q -p crucible-cli -- artifacts check
+        echo "==> pinned artifacts: fresh-compile determinism"
+        cargo run -q -p crucible-cli -- artifacts generate --root /tmp/artifacts-fresh >/dev/null
+        diff -r /tmp/artifacts-fresh artifacts/circuits
+        echo "==> ultrahonk live proving + trait-seam + artifact-integrity"
+        cargo test -p crucible-tests --test ultrahonk --test real_backend --test artifacts
     else
         echo "bb not on PATH; skipping live proving (see scripts/check-bb.sh)." >&2
     fi

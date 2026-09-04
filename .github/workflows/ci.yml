@@ -80,7 +80,10 @@ jobs:
           curl -sL https://raw.githubusercontent.com/noir-lang/noirup/main/install \
             | bash
           export PATH="$HOME/.nargo/bin:$PATH"
-          noirup
+          # Keep in sync with the version that generated the committed
+          # artifacts/circuits/* (the determinism gate below diffs fresh
+          # bytecode against them).
+          noirup -v 1.0.0-beta.26
           nargo --version
 
       - name: Install Barretenberg (bb)
@@ -114,7 +117,16 @@ jobs:
           export PATH="$HOME/.cargo/bin:$HOME/.nargo/bin:$PATH"
           cargo test -p crucible-tests --test vectors
 
-      - name: UltraHonk live proving (bb round trips + trait-seam backend)
+      - name: Pinned artifacts — integrity + fresh-compile determinism
+        run: |
+          export PATH="$HOME/.cargo/bin:$HOME/.nargo/bin:$PATH"
+          cargo run -q -p crucible-cli -- artifacts check
+          # A circuit change that forgets to re-pin its artifact is a stale-
+          # bytecode hazard: the committed artifact must equal fresh output.
+          cargo run -q -p crucible-cli -- artifacts generate --root /tmp/artifacts-fresh
+          diff -r /tmp/artifacts-fresh artifacts/circuits
+
+      - name: UltraHonk live proving (bb round trips + trait-seam + artifact-integrity)
         run: |
           export PATH="$HOME/.cargo/bin:$HOME/.nargo/bin:$HOME/.bb:$PATH"
-          cargo test -p crucible-tests --test ultrahonk --test real_backend
+          cargo test -p crucible-tests --test ultrahonk --test real_backend --test artifacts
