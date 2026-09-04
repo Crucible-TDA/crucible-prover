@@ -59,6 +59,11 @@ jobs:
       - name: Run workspace tests
         run: cargo test --workspace
 
+      - name: CLI smoke (real binary against the committed catalog)
+        run: |
+          cargo run -q -p crucible-cli -- circuits list
+          cargo run -q -p crucible-cli -- vectors run
+
   circuits:
     name: noir circuits
     runs-on: ubuntu-latest

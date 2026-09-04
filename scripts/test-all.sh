@@ -7,6 +7,10 @@ cd "$(dirname "$0")/.."
 echo "==> cargo test (workspace)"
 cargo test --workspace
 
+echo "==> CLI smoke (real binary, real catalog, no toolchain)"
+cargo run -q -p crucible-cli -- circuits list >/dev/null
+cargo run -q -p crucible-cli -- vectors run
+
 echo "==> static checks"
 bash scripts/check.sh
 
