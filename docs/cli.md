@@ -150,6 +150,25 @@ requests. Non-zero exit on any failure. The nargo-gated circuit tier
 (real witness solving against the circuits) runs via
 `cargo test -p crucible-tests --test vectors`.
 
+### `benchmark`
+
+```bash
+crucible-prover benchmark transfer                 # mock, 3 iterations
+crucible-prover benchmark transfer --backend ultrahonk
+crucible-prover benchmark transfer --iterations 10 --vector path/to/vector.json
+```
+
+Times the proving pipeline phases for one operation's valid witness:
+prove, local verify, and envelope serialization, reported as average /
+min / max over `--iterations` runs, alongside proof and envelope byte
+sizes and the bound state root. The default vector is the operation's
+committed valid fixture; pass `--vector` to benchmark another. With
+`--backend mock` this measures orchestration overhead only and says so
+in its output; with `--backend ultrahonk` it times real UltraHonk
+proving through `bb` (requires the toolchains and pinned bytecode, like
+`prove`). For in-process, statistically repeated measurements see the
+`benches/` harness.
+
 ## Path overrides
 
 All defaults resolve relative to the repository root:

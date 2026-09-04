@@ -13,7 +13,7 @@ use std::process::ExitCode;
 
 use clap::{Parser, Subcommand};
 
-use crate::commands::{artifacts, circuits, prove, vectors, verify, witness};
+use crate::commands::{artifacts, benchmark, circuits, prove, vectors, verify, witness};
 
 #[derive(Debug, Parser)]
 #[command(
@@ -55,6 +55,8 @@ enum Command {
         #[command(subcommand)]
         command: witness::WitnessCommand,
     },
+    /// Time the proving pipeline phases for one operation.
+    Benchmark(benchmark::BenchmarkArgs),
 }
 
 fn main() -> ExitCode {
@@ -80,5 +82,6 @@ fn run(command: Command, circuits: &std::path::Path) -> Result<(), String> {
         Command::Verify(args) => verify::run(args),
         Command::Vectors { command } => vectors::run(command),
         Command::Witness { command } => witness::run(command),
+        Command::Benchmark(args) => benchmark::run(args, circuits),
     }
 }

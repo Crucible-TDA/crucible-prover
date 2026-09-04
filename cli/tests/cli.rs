@@ -565,6 +565,45 @@ fn witness_build_rejects_an_operation_vector_mismatch() {
     );
 }
 
+// --- benchmark --------------------------------------------------------------
+
+#[test]
+fn benchmark_times_the_mock_pipeline_for_a_committed_vector() {
+    let output = run(&["benchmark", "transfer", "--iterations", "2"]);
+    assert!(output.status.success(), "stderr: {}", stderr(&output));
+    let text = stdout(&output);
+    assert!(text.contains("transfer-valid-001"), "{text}");
+    assert!(text.contains("prove       avg"), "{text}");
+    assert!(text.contains("verify      avg"), "{text}");
+    assert!(text.contains("serialize   avg"), "{text}");
+    assert!(text.contains("bytes"), "{text}");
+    // The mock warning must be present so the numbers are not mistaken for
+    // cryptographic performance.
+    assert!(text.contains("TEST ONLY"), "{text}");
+}
+
+#[test]
+fn benchmark_rejects_an_unknown_operation() {
+    let output = run(&["benchmark", "bogus"]);
+    assert!(!output.status.success());
+    assert!(
+        stderr(&output).contains("unknown circuit"),
+        "{}",
+        stderr(&output)
+    );
+}
+
+#[test]
+fn benchmark_rejects_an_unknown_backend() {
+    let output = run(&["benchmark", "transfer", "--backend", "bogus"]);
+    assert!(!output.status.success());
+    assert!(
+        stderr(&output).contains("unknown backend"),
+        "{}",
+        stderr(&output)
+    );
+}
+
 // --- envelope compatibility with the committed catalog ----------------------
 
 #[test]
