@@ -287,6 +287,134 @@ fn vectors_run_rejects_an_unknown_operation_filter() {
     );
 }
 
+// --- artifacts --------------------------------------------------------------
+
+/// Writes stub compiled bytecode for all five operations under
+/// `<circuits>/target/` and returns the circuits dir.
+fn stub_bytecode(dir: &Path) -> PathBuf {
+    let target = dir.join("target");
+    std::fs::create_dir_all(&target).expect("target dir");
+    for op in ["register", "deposit", "merge", "transfer", "withdraw"] {
+        std::fs::write(
+            target.join(format!("{op}.json")),
+            format!(r#"{{ "circuit": "{op}" }}"#),
+        )
+        .expect("bytecode stub");
+    }
+    dir.to_path_buf()
+}
+
+#[test]
+fn artifacts_generate_then_check_passes() {
+    let work = tempfile::tempdir().expect("temp dir");
+    let circuits = stub_bytecode(work.path());
+    let root = work.path().join("pinned");
+
+    let generated = run(&[
+        "--circuits",
+        circuits.to_str().unwrap(),
+        "artifacts",
+        "generate",
+        "--root",
+        root.to_str().unwrap(),
+    ]);
+    assert!(generated.status.success(), "stderr: {}", stderr(&generated));
+    assert!(
+        stdout(&generated).contains("pinned transfer"),
+        "{}",
+        stdout(&generated)
+    );
+
+    // Generation is deterministic: identical bytecode reproduces the same
+    // manifest bytes.
+    let manifest = |op: &str| root.join(op).join("manifest.json");
+    let before = std::fs::read(manifest("transfer")).unwrap();
+    let again = run(&[
+        "--circuits",
+        circuits.to_str().unwrap(),
+        "artifacts",
+        "generate",
+        "--root",
+        root.to_str().unwrap(),
+    ]);
+    assert!(again.status.success());
+    assert_eq!(
+        before,
+        std::fs::read(manifest("transfer")).unwrap(),
+        "manifest must be byte-stable"
+    );
+
+    let checked = run(&["artifacts", "check", "--root", root.to_str().unwrap()]);
+    assert!(checked.status.success(), "stderr: {}", stderr(&checked));
+    assert!(
+        stdout(&checked).contains("all 5 pinned artifacts verified"),
+        "{}",
+        stdout(&checked)
+    );
+}
+
+#[test]
+fn artifacts_check_fails_on_tampered_bytecode() {
+    let work = tempfile::tempdir().expect("temp dir");
+    let circuits = stub_bytecode(work.path());
+    let root = work.path().join("pinned");
+    let generated = run(&[
+        "--circuits",
+        circuits.to_str().unwrap(),
+        "artifacts",
+        "generate",
+        "--root",
+        root.to_str().unwrap(),
+    ]);
+    assert!(generated.status.success());
+
+    // Flip one byte of the pinned transfer bytecode.
+    let bytecode = root.join("transfer").join("transfer.json");
+    let mut bytes = std::fs::read(&bytecode).unwrap();
+    let last = bytes.len() - 1;
+    bytes[last] = if bytes[last] == b'0' { b'1' } else { b'0' };
+    std::fs::write(&bytecode, bytes).unwrap();
+
+    let checked = run(&["artifacts", "check", "--root", root.to_str().unwrap()]);
+    assert!(!checked.status.success());
+    let text = format!("{}{}", stdout(&checked), stderr(&checked));
+    assert!(text.contains("FAIL transfer"), "{text}");
+    assert!(text.contains("failed checksum verification"), "{text}");
+}
+
+#[test]
+fn artifacts_check_fails_when_manifest_is_missing() {
+    let work = tempfile::tempdir().expect("temp dir");
+    let circuits = stub_bytecode(work.path());
+    let root = work.path().join("pinned");
+    let generated = run(&[
+        "--circuits",
+        circuits.to_str().unwrap(),
+        "artifacts",
+        "generate",
+        "--root",
+        root.to_str().unwrap(),
+    ]);
+    assert!(generated.status.success());
+    std::fs::remove_file(root.join("merge").join("manifest.json")).unwrap();
+
+    let checked = run(&["artifacts", "check", "--root", root.to_str().unwrap()]);
+    assert!(!checked.status.success());
+    let text = format!("{}{}", stdout(&checked), stderr(&checked));
+    assert!(text.contains("FAIL merge"), "{text}");
+}
+
+#[test]
+fn artifacts_generate_rejects_an_unknown_operation() {
+    let output = run(&["artifacts", "generate", "bogus"]);
+    assert!(!output.status.success());
+    assert!(
+        stderr(&output).contains("unknown circuit"),
+        "{}",
+        stderr(&output)
+    );
+}
+
 // --- envelope compatibility with the committed catalog ----------------------
 
 #[test]

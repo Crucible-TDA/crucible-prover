@@ -14,6 +14,7 @@ name = "crucible-prover"
 path = "src/main.rs"
 
 [dependencies]
+crucible-artifacts = { path = "../crates/artifacts" }
 crucible-interfaces = { path = "../interfaces" }
 crucible-mock = { path = "../crates/mock" }
 crucible-noir = { path = "../crates/noir" }
