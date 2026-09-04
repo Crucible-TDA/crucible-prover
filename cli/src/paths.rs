@@ -17,6 +17,11 @@ pub fn default_circuits_root() -> PathBuf {
     repo_root().join("circuits")
 }
 
+/// Default test-vector catalog: `<repo>/test-vectors`.
+pub fn default_catalog_root() -> PathBuf {
+    repo_root().join("test-vectors")
+}
+
 /// Default verification-key store: `<repo>/artifacts/verification-keys`.
 pub fn default_vk_store() -> PathBuf {
     repo_root().join("artifacts").join("verification-keys")

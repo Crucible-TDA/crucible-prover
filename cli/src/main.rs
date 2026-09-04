@@ -13,7 +13,7 @@ use std::process::ExitCode;
 
 use clap::{Parser, Subcommand};
 
-use crate::commands::{circuits, prove, verify};
+use crate::commands::{circuits, prove, vectors, verify};
 
 #[derive(Debug, Parser)]
 #[command(
@@ -40,6 +40,11 @@ enum Command {
     Prove(prove::ProveArgs),
     /// Verify a proof envelope against the matching backend verifier.
     Verify(verify::VerifyArgs),
+    /// Judge the test-vector catalog through the mock tier.
+    Vectors {
+        #[command(subcommand)]
+        command: vectors::VectorsCommand,
+    },
 }
 
 fn main() -> ExitCode {
@@ -62,5 +67,6 @@ fn run(command: Command, circuits: &std::path::Path) -> Result<(), String> {
         Command::Circuits { command } => circuits::run(command, circuits),
         Command::Prove(args) => prove::run(args, circuits),
         Command::Verify(args) => verify::run(args),
+        Command::Vectors { command } => vectors::run(command),
     }
 }
