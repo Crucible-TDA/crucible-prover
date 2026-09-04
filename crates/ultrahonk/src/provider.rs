@@ -192,20 +192,18 @@ impl ProofProvider for UltraHonkProvider {
                         version,
                     }
                 }
-                _ => ProviderError::ArtifactIntegrity {
-                    circuit,
-                    version,
-                },
+                _ => ProviderError::ArtifactIntegrity { circuit, version },
             }
         })?;
         let bytecode_name = format!("{}.json", request.circuit);
-        let bytecode_bytes = loaded.file(&bytecode_name).ok_or_else(|| {
-            ProviderError::ArtifactUnavailable {
-                backend: BackendId::ULTRAHONK.to_owned(),
-                circuit: request.circuit.clone(),
-                version: request.circuit_version,
-            }
-        })?;
+        let bytecode_bytes =
+            loaded
+                .file(&bytecode_name)
+                .ok_or_else(|| ProviderError::ArtifactUnavailable {
+                    backend: BackendId::ULTRAHONK.to_owned(),
+                    circuit: request.circuit.clone(),
+                    version: request.circuit_version,
+                })?;
         // bb consumes the file at its verified path; the loader has already
         // proven those bytes match the manifest.
         let bytecode = artifact_dir.join(&bytecode_name);
