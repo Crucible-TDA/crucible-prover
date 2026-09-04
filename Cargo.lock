@@ -69,6 +69,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "crucible-noir"
+version = "0.1.0"
+dependencies = [
+ "crucible-interfaces",
+ "hex",
+ "serde",
+ "serde_json",
+ "tempfile",
+ "thiserror",
+]
+
+[[package]]
 name = "crucible-proof-types"
 version = "0.1.0"
 dependencies = [
