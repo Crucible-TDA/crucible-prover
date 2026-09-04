@@ -5,8 +5,9 @@ members = [
     "crates/proof-types",
     "crates/witness",
     "crates/artifacts",
+    "crates/mock",
 ]
-default-members = ["interfaces", "crates/proof-types", "crates/witness", "crates/artifacts"]
+default-members = ["interfaces", "crates/proof-types", "crates/witness", "crates/artifacts", "crates/mock"]
 
 [workspace.package]
 version = "0.1.0"

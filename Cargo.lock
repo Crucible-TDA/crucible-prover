@@ -58,6 +58,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "crucible-mock"
+version = "0.1.0"
+dependencies = [
+ "crucible-interfaces",
+ "serde",
+ "serde_json",
+ "sha2",
+ "thiserror",
+]
+
+[[package]]
 name = "crucible-proof-types"
 version = "0.1.0"
 dependencies = [
