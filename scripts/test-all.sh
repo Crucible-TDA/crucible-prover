@@ -17,6 +17,12 @@ if command -v nargo >/dev/null 2>&1; then
     bash scripts/generate-test-vectors.sh
     echo "==> cross-language vector runner (circuit tier)"
     cargo test -p crucible-tests --test vectors
+    if command -v bb >/dev/null 2>&1; then
+        echo "==> ultrahonk live proving (bb round trips)"
+        cargo test -p crucible-tests --test ultrahonk
+    else
+        echo "bb not on PATH; skipping live proving (see scripts/check-bb.sh)." >&2
+    fi
 else
     echo "nargo not on PATH; skipping circuit suites (see scripts/check-circuits.sh)." >&2
 fi

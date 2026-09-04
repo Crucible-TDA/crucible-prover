@@ -78,6 +78,15 @@ jobs:
           noirup
           nargo --version
 
+      - name: Install Barretenberg (bb)
+        run: |
+          curl -sL https://raw.githubusercontent.com/AztecProtocol/aztec-packages/refs/heads/next/barretenberg/bbup/install \
+            | bash
+          export PATH="$HOME/.bb:$PATH"
+          # Keep in sync with TESTED_BB_VERSION in crates/ultrahonk/src/lib.rs.
+          bbup -v 6.0.0-nightly.20260903 --no-modify-path
+          bb --version
+
       - name: Cache Noir build output
         uses: actions/cache@v4
         with:
@@ -99,3 +108,8 @@ jobs:
         run: |
           export PATH="$HOME/.cargo/bin:$HOME/.nargo/bin:$PATH"
           cargo test -p crucible-tests --test vectors
+
+      - name: UltraHonk live proving (bb round trips)
+        run: |
+          export PATH="$HOME/.cargo/bin:$HOME/.nargo/bin:$HOME/.bb:$PATH"
+          cargo test -p crucible-tests --test ultrahonk
