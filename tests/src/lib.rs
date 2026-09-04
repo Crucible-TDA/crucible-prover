@@ -5,6 +5,8 @@
 //! duplicated per binary.
 #![forbid(unsafe_code)]
 
+/// Circuit-tier execution against real Noir packages (nargo-gated).
+pub mod circuit_runner;
 /// Loader and structural validation for the `test-vectors/` JSON catalog.
 pub mod vectors;
 

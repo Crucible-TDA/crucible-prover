@@ -113,10 +113,12 @@ dependencies = [
  "crucible-artifacts",
  "crucible-interfaces",
  "crucible-mock",
+ "crucible-noir",
  "crucible-proof-types",
  "crucible-prover-core",
  "crucible-verifier",
  "crucible-witness",
+ "serde",
  "serde_json",
  "tempfile",
 ]

@@ -16,7 +16,9 @@ crucible-prover-core = { path = "../crates/prover-core" }
 crucible-verifier = { path = "../crates/verifier" }
 crucible-artifacts = { path = "../crates/artifacts" }
 crucible-mock = { path = "../crates/mock" }
+crucible-noir = { path = "../crates/noir" }
 crucible-witness = { path = "../crates/witness" }
+serde = { workspace = true, features = ["derive"] }
 serde_json.workspace = true
 tempfile.workspace = true
 
