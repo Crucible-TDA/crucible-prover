@@ -21,6 +21,9 @@ from referencing.jsonschema import DRAFT7
 
 ROOT = Path(__file__).resolve().parent.parent
 SCHEMAS = ROOT / "schemas"
+# Live test-vector catalog: every file must validate against
+# test-vector.schema.json (the cross-language contract).
+TEST_VECTORS = ROOT / "test-vectors"
 
 DOCS = {
     # A proof envelope exactly as crucible_proof_types::ProofEnvelope
@@ -215,6 +218,21 @@ def main() -> int:
                 print(f"FAIL {schema_name}: broken document was accepted")
             else:
                 print(f"ok   {schema_name}: broken document rejected ({errors[0].message[:60]})")
+
+    # 4. Every live test vector validates against test-vector.schema.json.
+    if TEST_VECTORS.is_dir():
+        schema = json.loads((SCHEMAS / "test-vector.schema.json").read_text())
+        validator = Draft7Validator(schema, registry=registry)
+        for path in sorted(TEST_VECTORS.rglob("*.json")):
+            doc = json.loads(path.read_text())
+            errors = sorted(validator.iter_errors(doc), key=lambda e: list(e.path))
+            if errors:
+                failures += 1
+                print(f"FAIL {path.relative_to(ROOT)}: {errors[0].message}")
+            else:
+                print(f"ok   {path.relative_to(ROOT)}: validates against test-vector schema")
+    else:
+        print(f"skip test-vectors sweep: {TEST_VECTORS} not present")
 
     if failures:
         print(f"\n{failures} failure(s)")
