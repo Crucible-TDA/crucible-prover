@@ -1,0 +1,34 @@
+[workspace]
+resolver = "2"
+members = ["interfaces"]
+default-members = ["interfaces"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+license = "MIT OR Apache-2.0"
+license-file = "LICENSE"
+repository = "https://github.com/Crucible-TDA/crucible-prover"
+homepage = "https://github.com/Crucible-TDA/crucible-prover"
+authors = ["Crucible-TDA contributors"]
+rust-version = "1.98"
+keywords = ["zero-knowledge", "noir", "stellar", "soroban", "confidential-tokens"]
+categories = ["cryptography", "cryptography::cryptocurrencies"]
+
+[workspace.dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "2.0"
+sha2 = "0.10"
+hex = "0.4"
+tempfile = "3.10"
+
+# Deny unsafe code across the workspace: witness and verification-key
+# material is handled here, so the code must stay in safe Rust.
+[workspace.lints.rust]
+unsafe_code = "forbid"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+strip = "symbols"

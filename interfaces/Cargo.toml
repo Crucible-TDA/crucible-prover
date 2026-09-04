@@ -1,0 +1,24 @@
+[package]
+name = "crucible-interfaces"
+description = "Stable contracts for the Crucible proof engine: provider/verifier traits, requests, circuit identities, and field-value model"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+keywords.workspace = true
+categories.workspace = true
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+hex.workspace = true
+sha2.workspace = true
+
+[lints]
+workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
