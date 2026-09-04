@@ -5,6 +5,8 @@
 # Noir build output (generated during compilation/proving)
 **/target/
 **/proofs/
+!proofs/
+!proofs/**
 **/Verifier.toml
 
 # Witness input files are runtime material and may carry private values, so
