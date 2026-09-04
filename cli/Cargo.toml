@@ -1,0 +1,30 @@
+[package]
+name = "crucible-cli"
+description = "Command-line interface for crucible-prover: circuits, witnesses, proofs, verification, and the vector catalog"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+publish = false
+
+[[bin]]
+name = "crucible-prover"
+path = "src/main.rs"
+
+[dependencies]
+crucible-interfaces = { path = "../interfaces" }
+crucible-mock = { path = "../crates/mock" }
+crucible-noir = { path = "../crates/noir" }
+crucible-proof-types = { path = "../crates/proof-types" }
+crucible-prover-core = { path = "../crates/prover-core" }
+crucible-ultrahonk = { path = "../crates/ultrahonk" }
+crucible-vectors = { path = "../crates/vectors" }
+clap = { workspace = true }
+serde_json.workspace = true
+sha2.workspace = true
+hex.workspace = true
+
+[lints]
+workspace = true
