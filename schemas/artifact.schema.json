@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://crucible.dev/schemas/artifact.schema.json",
+  "title": "ArtifactManifest",
+  "description": "Versioned declaration of a compiled circuit artifact (serialization of crucible_artifacts::ArtifactManifest): which circuit and version, which backend, which files make it up, and each file's SHA-256. Files are sorted by path; paths must stay inside the artifact root.",
+  "type": "object",
+  "properties": {
+    "manifest_version": { "type": "integer", "minimum": 1 },
+    "circuit": { "$ref": "field-bag.schema.json#/definitions/circuit_id" },
+    "circuit_version": { "$ref": "field-bag.schema.json#/definitions/semver" },
+    "artifact_version": { "$ref": "field-bag.schema.json#/definitions/semver" },
+    "backend": { "type": "string", "maxLength": 64 },
+    "verification_key_id": { "type": ["string", "null"], "maxLength": 128 },
+    "files": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "pattern": "^[^/\\\\][^\\\\]*$",
+            "description": "Artifact-relative path with '/' separators; must not escape the artifact root."
+          },
+          "sha256": { "$ref": "field-bag.schema.json#/definitions/hex64" },
+          "kind": { "type": ["string", "null"] }
+        },
+        "required": ["path", "sha256"],
+        "additionalProperties": false
+      },
+      "uniqueItems": true
+    },
+    "backend_metadata": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    }
+  },
+  "required": [
+    "manifest_version", "circuit", "circuit_version", "artifact_version",
+    "backend", "verification_key_id", "files", "backend_metadata"
+  ],
+  "additionalProperties": false
+}

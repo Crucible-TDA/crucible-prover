@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://crucible.dev/schemas/test-vector.schema.json",
+  "title": "TestVector",
+  "description": "One cross-language test vector (files under test-vectors/). Valid vectors must verify; invalid vectors must be rejected, with the expected rejection reason captured by 'expect_verification'.",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "operation": { "$ref": "field-bag.schema.json#/definitions/operation" },
+    "category": {
+      "type": "string",
+      "enum": ["valid", "invalid", "insufficient-balance", "wrong-owner", "stale-state", "malformed-proof", "replay", "state-transition", "commitment"]
+    },
+    "description": { "type": "string" },
+    "circuit": { "$ref": "field-bag.schema.json#/definitions/circuit_id" },
+    "circuit_version": { "$ref": "field-bag.schema.json#/definitions/semver" },
+    "witness": { "$ref": "witness.schema.json" },
+    "expected_public_outputs": { "$ref": "field-bag.schema.json" },
+    "state_reference": { "anyOf": [ { "$ref": "field-bag.schema.json#/definitions/state_reference" }, { "type": "null" } ] },
+    "expect_verification": { "type": "boolean" }
+  },
+  "required": [
+    "id", "operation", "category", "circuit", "circuit_version", "witness",
+    "expected_public_outputs", "state_reference", "expect_verification"
+  ],
+  "additionalProperties": false
+}

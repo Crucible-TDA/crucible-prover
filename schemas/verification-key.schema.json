@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://crucible.dev/schemas/verification-key.schema.json",
+  "title": "VerificationKeyReference",
+  "description": "Reference to a verification key as it appears in proofs and manifests: the id that selects the key plus the checksum that pins its bytes.",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "description": "Verification key id. UltraHonk ids follow uhk/<circuit>/<version>/<artifact-hash>; mock ids follow mock-vk/<circuit>/<version>."
+    },
+    "checksum": { "$ref": "field-bag.schema.json#/definitions/hex64" }
+  },
+  "required": ["id", "checksum"],
+  "additionalProperties": false
+}

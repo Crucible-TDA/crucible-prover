@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://crucible.dev/schemas/witness.schema.json",
+  "title": "Witness (vector representation)",
+  "description": "A witness in the JSON representation used by test vectors and cross-language fixtures. This is NOT a serialization of live private material: witness values in this form belong in checked-in vector files with no real secrecy, and real prover input is written by the crucible-witness encoder as Prover.toml. The 'private' map and 'public' bag must never share a name.",
+  "type": "object",
+  "properties": {
+    "operation": { "$ref": "field-bag.schema.json#/definitions/operation" },
+    "private": {
+      "type": "object",
+      "description": "Private witness values keyed by name. Values are canonical lowercase hex.",
+      "propertyNames": { "$ref": "field-bag.schema.json#/definitions/name" },
+      "additionalProperties": { "$ref": "field-bag.schema.json#/definitions/hex" }
+    },
+    "public": { "$ref": "field-bag.schema.json" }
+  },
+  "required": ["operation", "private", "public"],
+  "additionalProperties": false
+}

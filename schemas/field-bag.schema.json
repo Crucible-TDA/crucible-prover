@@ -1,0 +1,74 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://crucible.dev/schemas/field-bag.schema.json",
+  "title": "FieldBag",
+  "description": "Ordered collection of named field values, shared by public inputs and public outputs. Matches the serde encoding of PublicInputBag/OutputBag: an 'entries' array of [name, canonical-hex] pairs in insertion order. Names are lowercase alphanumeric plus underscore; values are canonical lowercase hex (no 0x prefix, no leading zeroes).",
+  "type": "object",
+  "properties": {
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "array",
+        "prefixItems": [
+          { "$ref": "#/definitions/name" },
+          { "$ref": "#/definitions/hex" }
+        ],
+        "minItems": 2,
+        "maxItems": 2
+      },
+      "uniqueItems": true
+    }
+  },
+  "required": ["entries"],
+  "additionalProperties": false,
+  "definitions": {
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]{1,64}$"
+    },
+    "hex": {
+      "type": "string",
+      "pattern": "^[0-9a-f]+$",
+      "maxLength": 64,
+      "description": "Canonical lowercase hex without 0x prefix; the value '0' is written as \"0\"."
+    },
+    "hex64": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "Exactly 64 lowercase hex characters (a 256-bit digest)."
+    },
+    "semver": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "description": "major.minor.patch version string."
+    },
+    "operation": {
+      "type": "string",
+      "enum": ["register", "deposit", "merge", "transfer", "withdraw"]
+    },
+    "circuit_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._-]{1,128}$",
+      "description": "Circuit identifier. For protocol operations it equals the operation name."
+    },
+    "state_reference": {
+      "type": "object",
+      "properties": {
+        "root": { "$ref": "#/definitions/hex64" },
+        "sequence": { "type": "integer", "minimum": 0 },
+        "label": { "type": ["string", "null"] }
+      },
+      "required": ["root", "sequence"],
+      "additionalProperties": false
+    },
+    "proof_blob": {
+      "type": "object",
+      "properties": {
+        "format": { "type": "string", "maxLength": 64 },
+        "bytes": { "$ref": "#/definitions/hex" }
+      },
+      "required": ["format", "bytes"],
+      "additionalProperties": false
+    }
+  }
+}

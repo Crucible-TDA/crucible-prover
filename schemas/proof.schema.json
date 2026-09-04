@@ -1,0 +1,34 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://crucible.dev/schemas/proof.schema.json",
+  "title": "ProofEnvelope",
+  "description": "Versioned, self-describing proof container (serialization of crucible_proof_types::ProofEnvelope). The unit of storage, exchange, and cross-language fixture testing.",
+  "type": "object",
+  "properties": {
+    "version": { "type": "integer", "minimum": 1 },
+    "operation": { "$ref": "field-bag.schema.json#/definitions/operation" },
+    "circuit": { "$ref": "field-bag.schema.json#/definitions/circuit_id" },
+    "circuit_version": { "$ref": "field-bag.schema.json#/definitions/semver" },
+    "backend": { "type": "string", "maxLength": 64 },
+    "proof": { "$ref": "field-bag.schema.json#/definitions/proof_blob" },
+    "public_outputs": { "$ref": "field-bag.schema.json" },
+    "verification_key_id": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "artifact_checksum": { "$ref": "field-bag.schema.json#/definitions/hex64" },
+    "state_reference": { "anyOf": [ { "$ref": "field-bag.schema.json#/definitions/state_reference" }, { "type": "null" } ] },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "request_id": { "type": "string", "minLength": 1 },
+        "produced_by": { "type": "string", "minLength": 1 }
+      },
+      "required": ["request_id", "produced_by"],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "version", "operation", "circuit", "circuit_version", "backend", "proof",
+    "public_outputs", "verification_key_id", "artifact_checksum",
+    "state_reference", "metadata"
+  ],
+  "additionalProperties": false
+}

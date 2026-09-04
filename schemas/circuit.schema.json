@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://crucible.dev/schemas/circuit.schema.json",
+  "title": "CircuitMetadata",
+  "description": "Immutable identity of a circuit (serialization of crucible_interfaces::CircuitMetadata): which circuit, which operation, which version.",
+  "type": "object",
+  "properties": {
+    "id": { "$ref": "field-bag.schema.json#/definitions/circuit_id" },
+    "operation": { "$ref": "field-bag.schema.json#/definitions/operation" },
+    "version": { "$ref": "field-bag.schema.json#/definitions/semver" }
+  },
+  "required": ["id", "operation", "version"],
+  "additionalProperties": false
+}

@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://crucible.dev/schemas/proof-response.schema.json",
+  "title": "ProofResponse",
+  "description": "The traceable result of proof generation (serialization of crucible_interfaces::ProofResponse). All fields are public: proofs never serialize private witness material.",
+  "type": "object",
+  "properties": {
+    "request_id": { "type": "string", "minLength": 1 },
+    "circuit": { "$ref": "field-bag.schema.json#/definitions/circuit_id" },
+    "circuit_version": { "$ref": "field-bag.schema.json#/definitions/semver" },
+    "backend": { "type": "string", "maxLength": 64 },
+    "proof": { "$ref": "field-bag.schema.json#/definitions/proof_blob" },
+    "public_outputs": { "$ref": "field-bag.schema.json" },
+    "verification_key_id": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "artifact_checksum": { "$ref": "field-bag.schema.json#/definitions/hex64" },
+    "state_reference": { "anyOf": [ { "$ref": "field-bag.schema.json#/definitions/state_reference" }, { "type": "null" } ] }
+  },
+  "required": [
+    "request_id", "circuit", "circuit_version", "backend", "proof",
+    "public_outputs", "verification_key_id", "artifact_checksum", "state_reference"
+  ],
+  "additionalProperties": false
+}

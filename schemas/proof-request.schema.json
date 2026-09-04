@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://crucible.dev/schemas/proof-request.schema.json",
+  "title": "ProofRequest (redacted view)",
+  "description": "The only JSON form of a proof request: the redacted view emitted by ProofRequest::redacted(). Private witness values are never serialized; only their names and count appear. Safe for logs, events, and CI output.",
+  "type": "object",
+  "properties": {
+    "request_id": { "type": "string", "minLength": 1 },
+    "operation": { "$ref": "field-bag.schema.json#/definitions/operation" },
+    "circuit": { "$ref": "field-bag.schema.json#/definitions/circuit_id" },
+    "circuit_version": { "$ref": "field-bag.schema.json#/definitions/semver" },
+    "artifact_version": { "$ref": "field-bag.schema.json#/definitions/semver" },
+    "backend": { "type": "string", "maxLength": 64 },
+    "private_witness": {
+      "type": "object",
+      "description": "Names and count only. A document carrying values here is NOT a redacted request.",
+      "properties": {
+        "names": {
+          "type": "array",
+          "items": { "$ref": "field-bag.schema.json#/definitions/name" }
+        },
+        "count": { "type": "integer", "minimum": 0 }
+      },
+      "required": ["names", "count"],
+      "additionalProperties": false
+    },
+    "public_inputs": { "$ref": "field-bag.schema.json" },
+    "state_reference": { "anyOf": [ { "$ref": "field-bag.schema.json#/definitions/state_reference" }, { "type": "null" } ] }
+  },
+  "required": [
+    "request_id", "operation", "circuit", "circuit_version", "artifact_version",
+    "backend", "private_witness", "public_inputs", "state_reference"
+  ],
+  "additionalProperties": false
+}
