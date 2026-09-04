@@ -108,7 +108,9 @@ used where soundness is the point.
 
 Compilation of Noir circuits and witness solving are nargo's job
 (`crucible-noir`); proof generation and verification are the Barretenberg
-backend's job, arriving with the circuits batch. The compatibility matrix in
+backend's job, executed through `crucible-ultrahonk` (see
+`docs/ultrahonk.md`). The compatibility matrix in
 `crates/ultrahonk/src/backend.rs` pins which `(nargo, bb)` pairs each
-circuit version was validated against — an unvalidated pairing is explicit,
-never assumed.
+circuit version was validated against — the single entry is validated by
+live proofs in the CI circuits job, and any future unvalidated pairing
+would be explicit, never assumed.

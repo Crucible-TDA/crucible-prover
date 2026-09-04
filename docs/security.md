@@ -94,8 +94,9 @@ The mock backend makes security *tests* deterministic and fast, and because
 its envelopes are self-describing it can say exactly why a proof was
 rejected. That diagnostic power is a test double's feature, not a real
 backend's — security tests that assert specific `VerificationFailure`
-reasons encode the mock's behavior and must be complemented by real-backend
-tests once the Barretenberg adapter lands.
+reasons encode the mock's behavior and are complemented by the real-backend
+tests in `tests/tests/ultrahonk.rs` (tampered proofs, wrong verification
+keys, and changed public inputs must all fail real `bb` verification).
 
 The repository forbids `unsafe` code workspace-wide (`unsafe_code =
 "forbid"`): witness and verification-key material is handled here, so the

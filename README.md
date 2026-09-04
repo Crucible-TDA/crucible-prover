@@ -89,6 +89,9 @@ Noir (circuits) is a separate toolchain; see `scripts/setup-noir.sh` and
   circuits, their public/witness boundaries, and measured costs
 - [`docs/noir.md`](docs/noir.md) — Noir toolchain split and the circuit
   workspace conventions
+- [`docs/ultrahonk.md`](docs/ultrahonk.md) — real UltraHonk proving with
+  the Barretenberg backend: the validated `nargo` × `bb` pairing and live
+  proof coverage
 - [`docs/test-vectors.md`](docs/test-vectors.md) — the cross-language vector
   catalog and the mock/circuit runner tiers that judge it
 

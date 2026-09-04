@@ -92,11 +92,12 @@ toolchain.
 
 **Defense**: `crucible-noir` never echoes nargo stderr into errors; the
 toolchain adapter checks the nargo version against the supported major
-before running; the UltraHonk compatibility matrix pins which `(nargo, bb)`
-pairs each circuit version is validated against.
+before running; `crucible-ultrahonk` gates the `bb` major version and CI
+installs the exact `(nargo, bb)` pair pinned in the compatibility matrix.
 
-**Status**: partially enforced today (nargo side); bb pairing lands with the
-backend adapter.
+**Status**: enforced — nargo and bb toolchains are both gated, and the live
+proving suite in `tests/tests/ultrahonk.rs` exercises the validated pairing
+on every CI run.
 
 ### A7. The environment attacker (unsafe code)
 **Goal**: exploit memory unsafety in witness/key handling.

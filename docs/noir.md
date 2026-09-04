@@ -23,10 +23,10 @@ adapter split follows the tool split:
 
 - `crucible-noir` ends at **artifacts + witnesses** (compile, execute, info,
   artifact parsing, version checks). It never shells out to a prover.
-- Real UltraHonk proving belongs to the Barretenberg `bb` backend and the
-  `crucible-ultrahonk` crate; it is wired behind the same `ProofProvider`
-  seam as everything else, and is out of scope until the batch that
-  introduces the `bb` integration.
+- Real UltraHonk proving belongs to the Barretenberg `bb` backend, executed
+  through `crucible-ultrahonk` (`BbToolchain` + `prove`/`verify` in `exec`);
+  see `docs/ultrahonk.md` for the validated `nargo` × `bb` pairing, the CLI
+  surface the adapter drives, and the live test coverage.
 
 Requiring `bb` is also why `nargo test` output — which runs the circuits on
 an in-process interpreter — is not a substitute for real proofs, only for
