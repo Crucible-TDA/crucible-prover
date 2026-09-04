@@ -6,11 +6,11 @@ members = [
     "merge",
     "transfer",
     "withdraw",
-    # "gadgets/commitment",
-    # "gadgets/hash",
-    # "gadgets/range",
-    # "gadgets/ownership",
-    # "gadgets/state",
+    "gadgets/commitment",
+    "gadgets/hash",
+    "gadgets/range",
+    "gadgets/ownership",
+    "gadgets/state",
 ]
 
 # The compiler version this workspace is developed against (see
