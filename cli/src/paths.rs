@@ -17,6 +17,11 @@ pub fn default_circuits_root() -> PathBuf {
     repo_root().join("circuits")
 }
 
+/// Default verification-key store: `<repo>/artifacts/verification-keys`.
+pub fn default_vk_store() -> PathBuf {
+    repo_root().join("artifacts").join("verification-keys")
+}
+
 /// The compiled ACIR artifact path for `package` under a circuits workspace.
 pub fn artifact_path(circuits: &Path, package: &str) -> PathBuf {
     circuits.join("target").join(format!("{package}.json"))

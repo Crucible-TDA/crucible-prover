@@ -13,7 +13,7 @@ use std::process::ExitCode;
 
 use clap::{Parser, Subcommand};
 
-use crate::commands::circuits;
+use crate::commands::{circuits, prove, verify};
 
 #[derive(Debug, Parser)]
 #[command(
@@ -36,6 +36,10 @@ enum Command {
         #[command(subcommand)]
         command: circuits::CircuitsCommand,
     },
+    /// Build a witness from a test vector and produce a proof envelope.
+    Prove(prove::ProveArgs),
+    /// Verify a proof envelope against the matching backend verifier.
+    Verify(verify::VerifyArgs),
 }
 
 fn main() -> ExitCode {
@@ -56,5 +60,7 @@ fn main() -> ExitCode {
 fn run(command: Command, circuits: &std::path::Path) -> Result<(), String> {
     match command {
         Command::Circuits { command } => circuits::run(command, circuits),
+        Command::Prove(args) => prove::run(args, circuits),
+        Command::Verify(args) => verify::run(args),
     }
 }
