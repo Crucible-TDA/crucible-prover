@@ -1,0 +1,40 @@
+[package]
+name = "crucible-benches"
+description = "In-process benchmarks for the crucible-prover pipeline (witness, round trip, serialization)"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+publish = false
+
+[lib]
+name = "crucible_benches"
+path = "src/lib.rs"
+
+[[bench]]
+name = "round_trip"
+path = "round_trip.rs"
+harness = false
+
+[[bench]]
+name = "witness_build"
+path = "witness_build.rs"
+harness = false
+
+[[bench]]
+name = "serialization"
+path = "serialization.rs"
+harness = false
+
+[dependencies]
+crucible-interfaces = { path = "../interfaces" }
+crucible-mock = { path = "../crates/mock" }
+crucible-proof-types = { path = "../crates/proof-types" }
+crucible-prover-core = { path = "../crates/prover-core" }
+crucible-vectors = { path = "../crates/vectors" }
+crucible-witness = { path = "../crates/witness" }
+
+[lints]
+workspace = true
