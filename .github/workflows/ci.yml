@@ -58,3 +58,34 @@ jobs:
 
       - name: Run workspace tests
         run: cargo test --workspace
+
+  circuits:
+    name: noir circuits
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Noir
+        run: |
+          curl -sL https://raw.githubusercontent.com/noir-lang/noirup/main/install \
+            | bash
+          export PATH="$HOME/.nargo/bin:$PATH"
+          noirup
+          nargo --version
+
+      - name: Cache Noir build output
+        uses: actions/cache@v4
+        with:
+          path: circuits/target
+          key: ${{ runner.os }}-nargo-${{ hashFiles('circuits/**/Nargo.toml', 'circuits/**/src/**') }}
+          restore-keys: ${{ runner.os }}-nargo-
+
+      - name: Circuit unit tests
+        run: |
+          export PATH="$HOME/.nargo/bin:$PATH"
+          cd circuits && nargo test
+
+      - name: Circuit test vectors
+        run: |
+          export PATH="$HOME/.nargo/bin:$PATH"
+          bash scripts/generate-test-vectors.sh

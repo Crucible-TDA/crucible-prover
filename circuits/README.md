@@ -36,6 +36,20 @@ The workspace is developed against **nargo 1.0.0-beta.26** (see
 `rust-toolchain.toml`? no — see `scripts/check-circuits.sh`). The compiler
 version is declared in every package's `Nargo.toml`; `nargo` enforces it.
 
+## Test vectors
+
+Every operation circuit carries one synthetic **valid** input vector in
+`testdata/Prover.toml`, using the sample key `0x1234` and round-number
+amounts/blindings so the expected outputs are readable by hand. The vectors
+are committed on purpose (`.gitignore` re-includes
+`circuits/**/testdata/Prover.toml`) because they are public fixtures; any
+*other* `Prover.toml` under the repo stays ignored — witness files can carry
+real private values and must never be committed.
+
+`scripts/generate-test-vectors.sh` executes each vector with `nargo execute`
+and fails if any witness no longer solves, which catches drift between a
+committed vector and the circuit's current witness layout.
+
 ## Commands
 
 ```bash
@@ -47,6 +61,9 @@ nargo test --workspace
 
 # Report circuit metrics (ACIR/Brillig opcodes) per package
 nargo info --workspace
+
+# Solve a committed test vector into a witness
+nargo execute --package transfer --prover-name testdata/Prover
 ```
 
 ## Scope honesty

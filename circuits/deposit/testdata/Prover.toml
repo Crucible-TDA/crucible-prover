@@ -1,0 +1,13 @@
+# Synthetic deposit vector — public sample keys only (see circuits/README.md).
+# account_sk = 0x1234            → account_address = key_hash(0x1234)
+# old commitment opens to (1000, 5)   = 0x076d...
+# deposit amount 500 with blinding 9  → new commitment opens to (1500, 9)
+token_address = "0x746f6b656e"
+account_address = "0x06871944eb38ea75866d42609302692a55e12cf7620a50f2cf03381b9b382b72"
+old_commitment = "0x076db33552d93aa30f635808d1ca29a8e03dd1f5f396bf2caf7df85a8038e2d0"
+
+account_sk = "0x1234"
+old_amount = "1000"
+old_blinding = "5"
+amount = "500"
+blinding = "9"

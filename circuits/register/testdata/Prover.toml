@@ -1,0 +1,4 @@
+# Synthetic registration vector (see scripts/generate-test-vectors.sh).
+# account_sk = 0x1234; address = key_hash(account_sk).
+account_address = "0x06871944eb38ea75866d42609302692a55e12cf7620a50f2cf03381b9b382b72"
+account_sk = "0x1234"

@@ -1,0 +1,16 @@
+# Synthetic merge vector — public sample keys only (see circuits/README.md).
+# account_sk = 0x1234            → account_address = key_hash(0x1234)
+# commitment_a opens to (600, 7)  = 0x22d6...
+# commitment_b opens to (400, 11) = 0x24fc...
+# merged blinding 13              → merged commitment opens to (1000, 13)
+token_address = "0x746f6b656e"
+account_address = "0x06871944eb38ea75866d42609302692a55e12cf7620a50f2cf03381b9b382b72"
+commitment_a = "0x22d65fc0a742e81765ede19037e57c52b9ae01921361194102045f2b54fac59a"
+commitment_b = "0x24fc5ed222d5e3fc7d22988b6ec8b08160f1b001235cd463ee5fd692fe91e752"
+
+account_sk = "0x1234"
+amount_a = "600"
+blinding_a = "7"
+amount_b = "400"
+blinding_b = "11"
+blinding = "13"
