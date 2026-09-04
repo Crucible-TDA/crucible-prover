@@ -10,7 +10,7 @@ if command -v nargo >/dev/null 2>&1; then
 fi
 
 echo "nargo is not installed on PATH." >&2
-echo "Install it with: curl -L https://raw.githubusercontent.com/noir-lang/noirup/main/install | bash && noirup" >&2
+echo "Install the pinned version with: bash scripts/setup-noir.sh" >&2
 if [[ "${CI:-}" == "true" ]]; then
     exit 1
 fi
