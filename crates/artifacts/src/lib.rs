@@ -27,7 +27,7 @@
 //!    caller that holds the manifest's own checksum detects file tampering
 //!    even if individual file hashes were edited in place.
 //!
-//! See `docs/artifact-management.md` for the full policy.
+//! See `docs/artifacts.md` for the full policy.
 
 #![forbid(unsafe_code)]
 #![warn(missing_docs)]
