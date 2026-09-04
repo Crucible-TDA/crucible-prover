@@ -1,0 +1,128 @@
+# CLI
+
+`crucible-prover` is the command-line face of the proving engine. It is
+pure orchestration: every command shells out to the library crates and
+keeps no proving logic of its own. Circuit compilation runs through the
+`crucible-noir` adapter (never raw `nargo` process calls), proving
+through `ProverService`, and verification through the registered
+verifiers.
+
+## Building
+
+```bash
+cargo build -p crucible-cli
+# binary at target/debug/crucible-prover
+```
+
+or without building:
+
+```bash
+cargo run -q -p crucible-cli -- <command>
+```
+
+## Commands
+
+### `circuits`
+
+```bash
+crucible-prover circuits list            # the five operation circuits + artifact status
+crucible-prover circuits check           # every op must have a compiled, parseable artifact
+crucible-prover circuits compile         # compile all five (requires nargo on PATH)
+crucible-prover circuits compile transfer
+```
+
+`list` reports each operation circuit's ACIR artifact path, size, and
+SHA-256. `check` exits non-zero listing every missing or unparseable
+artifact. `compile` runs `nargo compile` through the toolchain adapter,
+which also enforces the supported nargo major version.
+
+### `prove`
+
+```bash
+crucible-prover prove transfer \
+  --vector test-vectors/transfer/valid/transfer-valid-001.json \
+  --backend ultrahonk \
+  --out transfer.proof.json
+```
+
+Loads a test vector (see `docs/test-vectors.md`), assembles the
+[`ProofRequest`] for the chosen backend, and proves through
+[`ProverService`]. The local round-trip must pass before an envelope is
+written — a proof that fails its own verification is never returned.
+
+- `--backend mock` (default): fast, TEST ONLY, no toolchain required.
+- `--backend ultrahonk`: real UltraHonk proofs. Requires `nargo` and
+  `bb` on PATH (see `scripts/check-bb.sh`) and compiled bytecode under
+  `circuits/target/` (run `circuits compile` first).
+- `--out` defaults to `<vector-id>.<backend>.proof.json` in the current
+  directory.
+- `--vk-store <dir>`: verification-key store for ultrahonk, default
+  `<repo>/artifacts/verification-keys` (created on demand).
+
+The printed summary names the request id, circuit version, backend,
+verification-key id, public-word count, and the state root the proof is
+bound to. The envelope JSON is the unit of storage and exchange.
+
+### `verify`
+
+```bash
+crucible-prover verify transfer.proof.json
+crucible-prover verify transfer.proof.json --vk-store /path/to/store
+```
+
+The envelope is self-describing (backend, verification-key id, public
+outputs, state reference), so the command dispatches to the matching
+verifier with no user hints: mock envelopes go to `MockVerifier`,
+ultrahonk envelopes to `UltraHonkVerifier` resolving the key from the
+store. Exit 0 prints the verified summary; every rejection exits 1 with
+the reason — tampered bytes, changed public outputs, wrong key, stale
+state, or a structurally stripped binding.
+
+### `vectors run`
+
+```bash
+crucible-prover vectors run               # judge the whole catalog (mock tier)
+crucible-prover vectors run --op transfer # one operation
+crucible-prover vectors run --catalog /path/to/vectors
+```
+
+A fast, toolchain-free catalog gate mirroring the integration suite's
+mock-tier semantics exactly: vectors expected to verify must round-trip
+and verify; rejecting vectors must still be well-formed, provable
+requests. Non-zero exit on any failure. The nargo-gated circuit tier
+(real witness solving against the circuits) runs via
+`cargo test -p crucible-tests --test vectors`.
+
+## Path overrides
+
+All defaults resolve relative to the repository root:
+
+| Flag | Default |
+|---|---|
+| `--circuits <dir>` | `<repo>/circuits` |
+| `--catalog <dir>` (`vectors run`) | `<repo>/test-vectors` |
+| `--vk-store <dir>` | `<repo>/artifacts/verification-keys` |
+
+## Exit codes
+
+| Code | Meaning |
+|---|---|
+| 0 | success (or `verify`: proof accepted) |
+| 1 | runtime error — including verification rejections and failed checks |
+| 2 | argument/usage error (clap) |
+
+## Privacy
+
+Witness material flows from the vector file into the request and then,
+for ultrahonk, into a `0600` scratch `Prover.toml` via the witness
+encoder — it is never echoed in CLI output, and errors never carry
+witness values. The proof envelope is public by design (it contains
+only the proof, public inputs, and provenance).
+
+## Scope
+
+The CLI does not contain: a wallet, a token contract, a simulator, or a
+key-management system. It is the orchestration surface for the
+`crucible-prover` pipeline: circuits, witnesses, proofs, verification,
+and the vector catalog. Soroban on-chain verification and the testnet
+adapter are separate workstreams (see `docs/ultrahonk.md`).

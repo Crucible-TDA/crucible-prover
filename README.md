@@ -94,6 +94,22 @@ Noir (circuits) is a separate toolchain; see `scripts/setup-noir.sh` and
   proof coverage
 - [`docs/test-vectors.md`](docs/test-vectors.md) — the cross-language vector
   catalog and the mock/circuit runner tiers that judge it
+- [`docs/cli.md`](docs/cli.md) — the `crucible-prover` CLI: circuits,
+  prove/verify, and the catalog gate
+
+## Quick start (CLI)
+
+```bash
+cargo run -q -p crucible-cli -- circuits list
+cargo run -q -p crucible-cli -- circuits compile
+cargo run -q -p crucible-cli -- prove transfer \
+  --vector test-vectors/transfer/valid/transfer-valid-001.json \
+  --backend mock
+cargo run -q -p crucible-cli -- verify transfer-valid-001.mock.proof.json
+cargo run -q -p crucible-cli -- vectors run
+```
+
+See [`docs/cli.md`](docs/cli.md) for the full command surface.
 
 ## License
 

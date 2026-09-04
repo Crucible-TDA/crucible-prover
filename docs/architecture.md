@@ -44,13 +44,13 @@ Proof Request            interfaces::ProofRequest
 Witness Construction     crucible-witness (private ↔ public split)
       │
       ▼
-Circuit                  circuits/ (Noir, later batch)
+Circuit                  circuits/ (Noir workspace)
       │
       ▼
 ACIR                     nargo compile (crucible-noir)
       │
       ▼
-Prover Backend           ProofProvider impl (mock today, UltraHonk later)
+Prover Backend           ProofProvider impls (mock + UltraHonk/bb)
       │
       ▼
 ZK Proof                 ProofResponse / ProofEnvelope
@@ -141,9 +141,10 @@ pathological transitions?*
 
 ## Repository status
 
-Batch 1 (this state of `main`) lays the proving foundation: interfaces,
-wire types, witness and artifact management, mock backend, prover-core
-orchestration, the verification service, the nargo adapter, UltraHonk
-calldata knowledge, JSON schemas, and the security/invariant suite. The
-Noir circuits, real UltraHonk proving via Barretenberg, Soroban
-verification, and the CLI arrive in later batches on top of these seams.
+`main` carries the full proving pipeline: interfaces and wire types,
+witness and artifact management, the mock and UltraHonk backends,
+prover-core orchestration, the verification service, the Noir circuits
+with cryptographic state binding, the cross-language vector catalog,
+and the `crucible-prover` CLI. Soroban on-chain verification, Merkle
+membership for consumed commitments, and the testnet adapter remain
+open workstreams on top of these seams.
