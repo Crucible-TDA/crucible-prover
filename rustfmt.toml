@@ -1,0 +1,7 @@
+# Deterministic formatting for the crucible-prover workspace.
+# Only stable rustfmt options are used so `cargo fmt --check` behaves the same
+# for every contributor regardless of editor.
+edition = "2024"
+max_width = 100
+newline_style = "Unix"
+use_field_init_shorthand = true

@@ -1,0 +1,24 @@
+# Rust build output
+/target
+**/*.rs.bk
+
+# Noir build output (generated during compilation/proving)
+**/target/
+**/proofs/
+**/Prover.toml
+**/Verifier.toml
+
+# Runtime-generated proof/artifact material that is produced by scripts and
+# tests. Committed fixtures live under test-vectors/ and proofs/fixtures/.
+/artifacts/generated/
+/proofs/generated/
+
+# Editor/OS noise
+.DS_Store
+*.swp
+.idea/
+.vscode/
+
+# Environment
+.env
+.env.*

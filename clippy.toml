@@ -1,0 +1,3 @@
+# Minimum supported Rust version. Kept in sync with rust-toolchain.toml so
+# clippy does not suggest lints that require a newer compiler.
+msrv = "1.98"
