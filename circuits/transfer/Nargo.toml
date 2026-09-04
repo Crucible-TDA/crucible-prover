@@ -1,0 +1,8 @@
+[package]
+authors = ["Crucible-TDA contributors"]
+compiler_version = ">=1.0.0"
+name = "transfer"
+type = "bin"
+
+[dependencies]
+circuit_lib = { path = "../lib" }

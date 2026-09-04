@@ -4,8 +4,8 @@ members = [
     "register",
     "deposit",
     "merge",
+    "transfer",
     # Added as each circuit package lands (Batch 2):
-    # "transfer",
     # "withdraw",
     # "gadgets/commitment",
     # "gadgets/hash",
