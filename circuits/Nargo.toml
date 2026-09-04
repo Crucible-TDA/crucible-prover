@@ -1,8 +1,8 @@
 [workspace]
 members = [
     "lib",
+    "register",
     # Added as each circuit package lands (Batch 2):
-    # "register",
     # "deposit",
     # "merge",
     # "transfer",

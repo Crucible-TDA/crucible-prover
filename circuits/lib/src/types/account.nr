@@ -22,6 +22,11 @@ pub struct Address {
 }
 
 impl Address {
+    /// Wraps an existing address value.
+    pub fn new(value: Field) -> Address {
+        Address { value }
+    }
+
     /// Derives the public address from an account secret key.
     ///
     /// This is the *ownership* statement proven by register and by every

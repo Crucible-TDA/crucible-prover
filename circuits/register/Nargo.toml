@@ -1,0 +1,8 @@
+[package]
+authors = ["Crucible-TDA contributors"]
+compiler_version = ">=1.0.0"
+name = "register"
+type = "bin"
+
+[dependencies]
+circuit_lib = { path = "../lib" }
