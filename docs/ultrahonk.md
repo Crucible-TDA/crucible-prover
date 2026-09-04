@@ -76,14 +76,27 @@ bb verify -p <dir>/proof.json -k <dir>/vk.json -i <dir>/public_inputs.json
   `ultra_honk`, `bb_version` must be present, and the digest a proof embeds
   must equal the digest of the VK written alongside it). A proof that fails
   verification is an outcome, not an error.
+- `crates/ultrahonk/src/store.rs` — the filesystem verification-key store
+  (`VkStore`): providers write the `vk.json` a proof was produced with and
+  verifiers resolve it by id under `uhk/<circuit>/<version>/<artifact-sha>`.
+- `crates/ultrahonk/src/provider.rs` — `UltraHonkProvider` implementing
+  [`ProofProvider`]: request bags → `Prover.toml` (witness encoder, 0600, in
+  a scratch package copy) → `nargo execute` → `bb prove` → a
+  [`ProofResponse`] whose public outputs are named from the pinned circuit
+  surface.
+- `crates/ultrahonk/src/verifier.rs` — `UltraHonkVerifier` implementing
+  [`Verifier`]: resolves the key by id, re-encodes the submitted public
+  outputs, and lets `bb verify` decide; precise context rejections are
+  detected before cryptography runs.
 - `crates/ultrahonk/src/backend.rs` — the compatibility matrix.
 - `crates/ultrahonk/src/calldata.rs` — public-input encoding for an on-chain
   verifier (candidate layout; calibration against a deployed Soroban
   verifier is deferred to the Soroban batch).
 
-Witness and bytecode are referenced **by path only**; the adapter never
-reads witness material into memory, and errors carry paths and exit codes,
-never values or raw stderr.
+Witness and bytecode are referenced **by path only** on the exec layer;
+private values leave memory once, through the witness encoder into a 0600
+scratch `Prover.toml`. Errors carry paths and exit codes, never values or
+raw stderr.
 
 ## Live test coverage
 
@@ -104,11 +117,26 @@ These are the cryptographic counterparts of the wrong-context rejections
 the mock backend can only simulate, and they run in the CI circuits job
 where the validated toolchain pair is installed.
 
+## Trait-level wiring and its one honest gap
+
+`UltraHonkProvider`/`UltraHonkVerifier` implement the same
+[`ProofProvider`]/[`Verifier`] seams `crucible-mock` implements, so
+simulators and scenario runners swap backends without changing code. The
+`VkStore` is the resolution layer: a proof never carries key material —
+verifiers resolve it by the id stamped on the response.
+
+The current circuits do **not** commit to a state root, so the state
+reference on a real response is repository-level context, not a
+cryptographic binding. Stale-state and replay rejections therefore remain
+mock-authoritative until the circuits fold state roots into their public
+inputs; `tests/tests/real_backend.rs` pins that limitation so the flip is
+forced when it lands.
+
+The trait-seam suite needs `nargo` + `bb` on PATH and compiled bytecode
+under `circuits/target/` (CI compiles before running it).
+
 ## What is deliberately not here yet
 
-- Wiring this file-level proving behind the `ProofProvider`/`Verifier`
-  traits (verification-key store + witness-bag bridge + artifact resolver)
-  is the application boundary, still to land.
 - On-chain verification (Soroban UltraHonk verifier, calldata calibration,
   `verifier_target` selection) is the Soroban adapter's job.
 - The circuits in this repository encode the *shape* of Confidential Token
