@@ -231,16 +231,40 @@ impl TestVector {
                 self.category
             )));
         }
-        // State-bound operations carry a state reference.
+        // State-bound operations carry a state reference whose halves must
+        // appear as the circuit's `root_hi`/`root_lo` public params: the
+        // witness is only meaningful against the root it names.
         if matches!(
             self.operation,
             Operation::Transfer | Operation::Merge | Operation::Withdraw
-        ) && self.state_reference.is_none()
-        {
-            return Err(ctx(format!(
-                "operation {} requires a state reference",
-                self.operation
-            )));
+        ) {
+            let state = self.state_reference.as_ref().ok_or_else(|| {
+                ctx(format!(
+                    "operation {} requires a state reference",
+                    self.operation
+                ))
+            })?;
+            let (hi, lo) = state.root_halves();
+            let hi_entry = self.witness.public.get("root_hi").ok_or_else(|| {
+                ctx("state-bound operation must expose `root_hi` as a public input".to_owned())
+            })?;
+            let lo_entry = self.witness.public.get("root_lo").ok_or_else(|| {
+                ctx("state-bound operation must expose `root_lo` as a public input".to_owned())
+            })?;
+            if hi_entry != &hi {
+                return Err(ctx(format!(
+                    "`root_hi` ({}) does not match the state root's high half ({})",
+                    hi_entry.as_hex(),
+                    hi.as_hex()
+                )));
+            }
+            if lo_entry != &lo {
+                return Err(ctx(format!(
+                    "`root_lo` ({}) does not match the state root's low half ({})",
+                    lo_entry.as_hex(),
+                    lo.as_hex()
+                )));
+            }
         }
         // register returns nothing, so valid register vectors report no
         // outputs; every other operation reports its public return values.

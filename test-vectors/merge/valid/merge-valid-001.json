@@ -2,7 +2,7 @@
   "id": "merge-valid-001",
   "operation": "merge",
   "category": "valid",
-  "description": "Merge commit(600,7) and commit(400,11) under the sample key 0x1234 (token 0x746f6b656e) into commit(1000,13). Emits two token-bound nullifiers.",
+  "description": "Merge commit(600,7) and commit(400,11) under the sample key 0x1234 (token 0x746f6b656e) into commit(1000,13). Emits two state- and token-bound nullifiers.",
   "circuit": "merge",
   "circuit_version": "0.1.0",
   "witness": {
@@ -17,18 +17,47 @@
     },
     "public": {
       "entries": [
-        ["token_address", "746f6b656e"],
-        ["account_address", "6871944eb38ea75866d42609302692a55e12cf7620a50f2cf03381b9b382b72"],
-        ["commitment_a", "22d65fc0a742e81765ede19037e57c52b9ae01921361194102045f2b54fac59a"],
-        ["commitment_b", "24fc5ed222d5e3fc7d22988b6ec8b08160f1b001235cd463ee5fd692fe91e752"]
+        [
+          "token_address",
+          "746f6b656e"
+        ],
+        [
+          "account_address",
+          "6871944eb38ea75866d42609302692a55e12cf7620a50f2cf03381b9b382b72"
+        ],
+        [
+          "commitment_a",
+          "22d65fc0a742e81765ede19037e57c52b9ae01921361194102045f2b54fac59a"
+        ],
+        [
+          "commitment_b",
+          "24fc5ed222d5e3fc7d22988b6ec8b08160f1b001235cd463ee5fd692fe91e752"
+        ],
+        [
+          "root_hi",
+          "abababababababababababababababab"
+        ],
+        [
+          "root_lo",
+          "abababababababababababababababab"
+        ]
       ]
     }
   },
   "expected_public_outputs": {
     "entries": [
-      ["merged_commitment", "2f2a44c5b5107b885cef4a97cc6a2963922745d66d22951fa931457663c3e0d2"],
-      ["nullifier_a", "11a3cdbc9a47f2d65275ba1b0a69e716c4b2cf0f95e85cd178228f169594f593"],
-      ["nullifier_b", "10c1dfce8654e7b14a49dbe50b416ee90868892708deee4d06cf440feb762bc5"]
+      [
+        "merged_commitment",
+        "2f2a44c5b5107b885cef4a97cc6a2963922745d66d22951fa931457663c3e0d2"
+      ],
+      [
+        "nullifier_a",
+        "4f44f2dfc73d3757775a3d7d47fa2dbc756174749b797f225fa98dcf2f18847"
+      ],
+      [
+        "nullifier_b",
+        "128ac89d32f0bd3cf802582d11b512adb251a2e231daf78ac0de3112a55a097"
+      ]
     ]
   },
   "state_reference": {

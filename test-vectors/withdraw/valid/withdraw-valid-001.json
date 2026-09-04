@@ -2,7 +2,7 @@
   "id": "withdraw-valid-001",
   "operation": "withdraw",
   "category": "valid",
-  "description": "Withdraw 300 from a commitment holding 1000 under the sample key 0x1234 (token 0x746f6b656e). Consumes commit(1000,5); change commit(700,8) stays behind; emits a token-bound nullifier.",
+  "description": "Withdraw 300 from a commitment holding 1000 under the sample key 0x1234 (token 0x746f6b656e). Consumes commit(1000,5); change commit(700,8) stays behind; emits a state- and token-bound nullifier.",
   "circuit": "withdraw",
   "circuit_version": "0.1.0",
   "witness": {
@@ -16,16 +16,39 @@
     },
     "public": {
       "entries": [
-        ["token_address", "746f6b656e"],
-        ["account_address", "6871944eb38ea75866d42609302692a55e12cf7620a50f2cf03381b9b382b72"],
-        ["commitment", "76db33552d93aa30f635808d1ca29a8e03dd1f5f396bf2caf7df85a8038e2d0"]
+        [
+          "token_address",
+          "746f6b656e"
+        ],
+        [
+          "account_address",
+          "6871944eb38ea75866d42609302692a55e12cf7620a50f2cf03381b9b382b72"
+        ],
+        [
+          "commitment",
+          "76db33552d93aa30f635808d1ca29a8e03dd1f5f396bf2caf7df85a8038e2d0"
+        ],
+        [
+          "root_hi",
+          "abababababababababababababababab"
+        ],
+        [
+          "root_lo",
+          "abababababababababababababababab"
+        ]
       ]
     }
   },
   "expected_public_outputs": {
     "entries": [
-      ["change_commitment", "1b98de4fa954312e6957dd3074011418e26385cd85fa8bd3a711a6c1d578063"],
-      ["nullifier", "2c90bd0611da2c636e3c6c872866e363641a0ed7c3e063384311fa2add839740"]
+      [
+        "change_commitment",
+        "1b98de4fa954312e6957dd3074011418e26385cd85fa8bd3a711a6c1d578063"
+      ],
+      [
+        "nullifier",
+        "15380738274c4c2de28a249de47def2269bd4d476cd63b570348e6410cc57d4a"
+      ]
     ]
   },
   "state_reference": {

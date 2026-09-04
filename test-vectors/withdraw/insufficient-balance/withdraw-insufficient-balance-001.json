@@ -16,9 +16,26 @@
     },
     "public": {
       "entries": [
-        ["token_address", "746f6b656e"],
-        ["account_address", "6871944eb38ea75866d42609302692a55e12cf7620a50f2cf03381b9b382b72"],
-        ["commitment", "76db33552d93aa30f635808d1ca29a8e03dd1f5f396bf2caf7df85a8038e2d0"]
+        [
+          "token_address",
+          "746f6b656e"
+        ],
+        [
+          "account_address",
+          "6871944eb38ea75866d42609302692a55e12cf7620a50f2cf03381b9b382b72"
+        ],
+        [
+          "commitment",
+          "76db33552d93aa30f635808d1ca29a8e03dd1f5f396bf2caf7df85a8038e2d0"
+        ],
+        [
+          "root_hi",
+          "abababababababababababababababab"
+        ],
+        [
+          "root_lo",
+          "abababababababababababababababab"
+        ]
       ]
     }
   },
