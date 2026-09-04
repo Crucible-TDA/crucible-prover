@@ -1,0 +1,1 @@
+{"manifest_version":1,"circuit":"deposit","circuit_version":"0.1.0","artifact_version":"0.1.0","backend":"ultrahonk","files":[{"path":"deposit.json","sha256":"7c02d3b01ebee018a7c6a39115a1b6e325d7795ae6e1c3f583ef4cf73ecbf4cb","kind":"acir"}],"backend_metadata":{"generated_by":"crucible-prover/0.1.0"}}

@@ -1,0 +1,1 @@
+{"manifest_version":1,"circuit":"withdraw","circuit_version":"0.1.0","artifact_version":"0.1.0","backend":"ultrahonk","files":[{"path":"withdraw.json","sha256":"49b9c255e5f56d47691435773cb8bd7aad69557ef18d2ecfda28e0c51aa7681f","kind":"acir"}],"backend_metadata":{"generated_by":"crucible-prover/0.1.0"}}

@@ -1,0 +1,1 @@
+{"manifest_version":1,"circuit":"merge","circuit_version":"0.1.0","artifact_version":"0.1.0","backend":"ultrahonk","files":[{"path":"merge.json","sha256":"d8f6992470cfc336ed1297faab081bcb883c3aa2fd91b2ed7353f7d515dea3ea","kind":"acir"}],"backend_metadata":{"generated_by":"crucible-prover/0.1.0"}}

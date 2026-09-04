@@ -1,0 +1,1 @@
+{"manifest_version":1,"circuit":"transfer","circuit_version":"0.1.0","artifact_version":"0.1.0","backend":"ultrahonk","files":[{"path":"transfer.json","sha256":"7cf88c432c4da0e683a2f93598993bd07597ae5020b69924065958c859988b5d","kind":"acir"}],"backend_metadata":{"generated_by":"crucible-prover/0.1.0"}}
