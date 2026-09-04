@@ -1,20 +1,27 @@
-//! UltraHonk backend knowledge.
+//! UltraHonk backend: knowledge and real proving via Barretenberg.
 //!
 //! UltraHonk is the proving system behind Stellar Confidential Tokens: Noir
 //! circuits compiled with `nargo`, proved with the Barretenberg backend, and
 //! verified on-chain by an UltraHonk verifier. This crate owns the
-//! UltraHonk-specific *knowledge* — proof format tags, verification key
-//! identity, backend/version compatibility, and the calldata encoding that
-//! bridges a local proof to an on-chain verifier.
+//! UltraHonk-specific layer:
 //!
-//! # Deliberately not here
+//! - [`toolchain`] — locating `bb` and gating its version;
+//! - [`exec`] — running `bb prove` / `bb verify` and parsing the
+//!   self-describing JSON artifacts (scheme, `bb_version`, `vk_hash`);
+//! - [`backend`] — the compatibility matrix pinning the validated
+//!   `nargo` × `bb` pairing;
+//! - [`proof`] / [`vk`] — proof-format and verification-key identity;
+//! - [`calldata`] — encoding public inputs for an on-chain verifier.
 //!
-//! This crate does **not** make Crucible UltraHonk-specific. It implements
-//! the [`ProofProvider`]/[`Verifier`] seams from `crucible-interfaces` the
-//! same way `crucible-mock` does; callers only ever see the traits. Actual
-//! proof generation against a real Barretenberg binary lands with the
-//! circuits batch (see `docs/ultrahonk.md`); today this crate pins the
-//! format, encodes calldata, and version-checks artifacts.
+//! # Scope boundary
+//!
+//! This crate does **not** make Crucible UltraHonk-specific. Proving and
+//! verification here are *file-level*: they consume a compiled bytecode and
+//! a solved witness and produce a proof bundle. Wiring that behind the
+//! [`ProofProvider`]/[`Verifier`] seams of `crucible-interfaces` (a
+//! verification-key store, the witness bridge from request bags, and the
+//! on-chain flow) is the application boundary and lands separately, exactly
+//! as `crucible-mock` already implements the traits for tests.
 //!
 //! [`ProofProvider`]: crucible_interfaces::ProofProvider
 //! [`Verifier`]: crucible_interfaces::Verifier
@@ -25,6 +32,7 @@
 pub mod backend;
 pub mod calldata;
 pub mod errors;
+pub mod exec;
 pub mod proof;
 pub mod toolchain;
 pub mod vk;
@@ -32,6 +40,10 @@ pub mod vk;
 pub use backend::{BACKEND_COMPAT, CompatEntry, UltraHonkBackend};
 pub use calldata::CalldataEncoder;
 pub use errors::UltraHonkError;
+pub use exec::{
+    ArtifactFiles, ProofDocument, ProvenArtifacts, ProveOptions, PublicInputsDocument,
+    SCHEME_ULTRA_HONK, VerifyOptions, VerifyOutcome, VkDocument, prove, verify,
+};
 pub use proof::{PROOF_FORMAT, PROOF_FORMAT_TAG};
 pub use toolchain::{BbToolchain, BbVersion};
 pub use vk::VerificationKeyIdPolicy;

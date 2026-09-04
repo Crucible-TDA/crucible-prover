@@ -129,6 +129,8 @@ version = "0.1.0"
 dependencies = [
  "crucible-interfaces",
  "hex",
+ "serde",
+ "serde_json",
  "sha2",
  "thiserror",
 ]
