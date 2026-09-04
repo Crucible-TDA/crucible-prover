@@ -8,6 +8,11 @@
 //! - [`toolchain`] — locating `bb` and gating its version;
 //! - [`exec`] — running `bb prove` / `bb verify` and parsing the
 //!   self-describing JSON artifacts (scheme, `bb_version`, `vk_hash`);
+//! - [`store`] — the verification-key store providers write and verifiers
+//!   resolve keys from, by id;
+//! - [`provider`] / [`verifier`] — [`ProofProvider`]/[`Verifier`]
+//!   implementations that turn request bags into real proofs and re-run the
+//!   backend over submitted contexts;
 //! - [`backend`] — the compatibility matrix pinning the validated
 //!   `nargo` × `bb` pairing;
 //! - [`proof`] / [`vk`] — proof-format and verification-key identity;
@@ -15,13 +20,12 @@
 //!
 //! # Scope boundary
 //!
-//! This crate does **not** make Crucible UltraHonk-specific. Proving and
-//! verification here are *file-level*: they consume a compiled bytecode and
-//! a solved witness and produce a proof bundle. Wiring that behind the
-//! [`ProofProvider`]/[`Verifier`] seams of `crucible-interfaces` (a
-//! verification-key store, the witness bridge from request bags, and the
-//! on-chain flow) is the application boundary and lands separately, exactly
-//! as `crucible-mock` already implements the traits for tests.
+//! This crate does **not** make Crucible UltraHonk-specific. Callers go
+//! through the [`ProofProvider`]/[`Verifier`] traits exactly as they do with
+//! `crucible-mock`; this crate simply implements them with real
+//! cryptography. What remains out of scope here is the *on-chain* flow
+//! (Soroban verifier, calldata calibration), which belongs to the Soroban
+//! adapter.
 //!
 //! [`ProofProvider`]: crucible_interfaces::ProofProvider
 //! [`Verifier`]: crucible_interfaces::Verifier
@@ -34,7 +38,10 @@ pub mod calldata;
 pub mod errors;
 pub mod exec;
 pub mod proof;
+pub mod provider;
+pub mod store;
 pub mod toolchain;
+pub mod verifier;
 pub mod vk;
 
 pub use backend::{BACKEND_COMPAT, CompatEntry, UltraHonkBackend};
@@ -45,7 +52,10 @@ pub use exec::{
     SCHEME_ULTRA_HONK, VerifyOptions, VerifyOutcome, VkDocument, prove, verify,
 };
 pub use proof::{PROOF_FORMAT, PROOF_FORMAT_TAG};
+pub use provider::{UltraHonkConfig, UltraHonkProvider};
+pub use store::VkStore;
 pub use toolchain::{BbToolchain, BbVersion};
+pub use verifier::UltraHonkVerifier;
 pub use vk::VerificationKeyIdPolicy;
 
 /// The default command used to locate `bb`.

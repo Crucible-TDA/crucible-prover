@@ -12,11 +12,14 @@ categories.workspace = true
 
 [dependencies]
 crucible-interfaces = { path = "../../interfaces" }
+crucible-noir = { path = "../noir" }
+crucible-witness = { path = "../witness" }
 serde.workspace = true
 serde_json.workspace = true
 thiserror.workspace = true
 hex.workspace = true
 sha2.workspace = true
+tempfile.workspace = true
 
 [lints]
 workspace = true

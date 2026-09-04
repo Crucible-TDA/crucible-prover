@@ -30,7 +30,7 @@
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use crate::errors::UltraHonkError;
 use crate::toolchain::BbToolchain;
@@ -39,7 +39,7 @@ use crate::toolchain::BbToolchain;
 pub const SCHEME_ULTRA_HONK: &str = "ultra_honk";
 
 /// `proof.json` — the UltraHonk proof plus backend provenance.
-#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ProofDocument {
     /// The proof as backend field words (32-byte `0x`-prefixed hex). Public
     /// inputs are embedded in this list per the backend's own layout.
@@ -73,7 +73,7 @@ impl ProofDocument {
 }
 
 /// `public_inputs.json` — the public inputs the proof commits to.
-#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct PublicInputsDocument {
     /// Public inputs as 32-byte field words, in circuit return order.
     #[serde(rename = "public_inputs")]
@@ -93,7 +93,7 @@ impl PublicInputsDocument {
 }
 
 /// `vk.json` — the verification key plus its own digest.
-#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct VkDocument {
     /// The verification key as backend field words.
     #[serde(rename = "vk")]
