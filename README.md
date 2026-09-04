@@ -85,6 +85,10 @@ Noir (circuits) is a separate toolchain; see `scripts/setup-noir.sh` and
   privacy rules for contributors
 - [`docs/threat-model.md`](docs/threat-model.md) — adversaries, attacks,
   and the defenses (and tests) that resist them
+- [`docs/circuit-model.md`](docs/circuit-model.md) — the Noir operation
+  circuits, their public/witness boundaries, and measured costs
+- [`docs/noir.md`](docs/noir.md) — Noir toolchain split and the circuit
+  workspace conventions
 
 ## License
 
