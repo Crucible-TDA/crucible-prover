@@ -5,6 +5,9 @@
 token_address = "0x746f6b656e"
 account_address = "0x06871944eb38ea75866d42609302692a55e12cf7620a50f2cf03381b9b382b72"
 commitment = "0x076db33552d93aa30f635808d1ca29a8e03dd1f5f396bf2caf7df85a8038e2d0"
+# state root = ab*32 → halves ab*16 (matches test-vectors/withdraw/valid/withdraw-valid-001.json)
+root_hi = "0xabababababababababababababababab"
+root_lo = "0xabababababababababababababababab"
 
 account_sk = "0x1234"
 amount = "300"
