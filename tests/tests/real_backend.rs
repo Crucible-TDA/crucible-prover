@@ -126,7 +126,7 @@ fn register_round_trips_through_the_service_with_real_proving() {
 }
 
 #[test]
-fn transfer_round_trip_names_all_seven_public_words() {
+fn transfer_round_trip_names_all_nine_public_words() {
     let Some(stack) = real_stack() else {
         return;
     };
@@ -144,8 +144,10 @@ fn transfer_round_trip_names_all_seven_public_words() {
     assert!(outcome.verified);
 
     let spec = expectations(request.operation);
-    assert_eq!(response.public_outputs.len(), 7, "transfer has seven public words");
-    // Public params match the request, returns match the fixture.
+    assert_eq!(response.public_outputs.len(), 9, "transfer has nine public words");
+    // Public params match the request (including the root halves, which the
+    // request's public inputs carry and the circuit commits to), returns
+    // match the fixture.
     for name in spec.public_params {
         let got = response.public_outputs.get(name).unwrap();
         let want = request.public_inputs.get(name).unwrap();
@@ -159,6 +161,11 @@ fn transfer_round_trip_names_all_seven_public_words() {
             "return `{name}` must match the circuit's reported output"
         );
     }
+    // The root halves are the state root the request is bound to, split.
+    let state = request.state_reference.as_ref().unwrap();
+    let (hi, lo) = state.root_halves();
+    assert_eq!(response.public_outputs.get("root_hi").unwrap(), &hi);
+    assert_eq!(response.public_outputs.get("root_lo").unwrap(), &lo);
 }
 
 #[test]
@@ -295,12 +302,60 @@ fn circuit_id_mismatch_is_caught_before_cryptography() {
 }
 
 #[test]
-fn state_reference_is_not_yet_cryptographically_bound() {
-    // Honest regression pin: the current circuits commit no state root, so a
-    // real proof cannot detect that its submission context moved from root A
-    // to root B — the mock remains authoritative for stale-state/replay until
-    // the circuits fold state roots into their public inputs. Flip this test
-    // when they do.
+fn stale_state_is_rejected_structurally_before_crypto() {
+    // A proof cut for root A (its public outputs commit the A root halves)
+    // must be rejected when the submission context moves to root B — the
+    // stale-state/replay guarantee, now structural at the real verifier,
+    // mirroring the mock.
+    let Some(stack) = real_stack() else {
+        return;
+    };
+    if !bytecode_present("transfer") {
+        eprintln!("skipping: transfer bytecode not compiled");
+        return;
+    }
+    let request = real_request(&vector("transfer-valid-001"));
+    let response = stack
+        .service
+        .prove(&request)
+        .expect("prove must succeed for a valid witness");
+    assert!(
+        response.state_reference.is_some(),
+        "transfer request carries a state reference"
+    );
+
+    let mut stale = response.clone();
+    stale.state_reference = Some(StateReference::new(
+        RootDigest::from_hex(&"cd".repeat(32)).unwrap(),
+        99,
+    ));
+    let outcome = stack
+        .verifier
+        .verify(&VerificationRequest::from_response(&stale))
+        .expect("verify must run");
+    assert!(
+        outcome.rejected_with(VerificationFailure::StateReferenceMismatch),
+        "proof cut for root A must be rejected when the context claims root B: {outcome}"
+    );
+
+    // Dropping the state binding entirely is also rejected.
+    let mut unbound = response.clone();
+    unbound.state_reference = None;
+    let outcome = stack
+        .verifier
+        .verify(&VerificationRequest::from_response(&unbound))
+        .expect("verify must run");
+    assert!(
+        outcome.rejected_with(VerificationFailure::MissingStateBinding),
+        "a state-bound proof submitted without a state reference must be rejected: {outcome}"
+    );
+}
+
+#[test]
+fn stale_state_is_rejected_cryptographically_when_words_are_rewritten() {
+    // The deeper attack: rewrite *both* the submitted state reference and the
+    // public root words to root B. The structural check passes (they agree),
+    // so bb itself must reject — the proof was cut for root A's words.
     let Some(stack) = real_stack() else {
         return;
     };
@@ -314,19 +369,57 @@ fn state_reference_is_not_yet_cryptographically_bound() {
         .prove(&request)
         .expect("prove must succeed for a valid witness");
 
-    let mut stale = response.clone();
-    stale.state_reference = Some(StateReference::new(
+    let root_b = StateReference::new(
         RootDigest::from_hex(&"cd".repeat(32)).unwrap(),
         99,
-    ));
+    );
+    let (hi_b, lo_b) = root_b.root_halves();
+    let mut rewritten = response.clone();
+    rewritten
+        .public_outputs
+        .set("root_hi", hi_b.clone())
+        .expect("root_hi present");
+    rewritten
+        .public_outputs
+        .set("root_lo", lo_b.clone())
+        .expect("root_lo present");
+    rewritten.state_reference = Some(root_b);
     let outcome = stack
         .verifier
-        .verify(&VerificationRequest::from_response(&stale))
+        .verify(&VerificationRequest::from_response(&rewritten))
         .expect("verify must run");
     assert!(
-        outcome.verified,
-        "see the test note: state is repository-level context until circuits bind roots"
+        !outcome.verified,
+        "a proof cut for root A must fail bb when the words claim root B: {outcome}"
     );
+}
+
+#[test]
+fn register_remains_unbound() {
+    // register's circuit takes no root params, so a register proof carries no
+    // root words and a state reference on the submission is inert — the
+    // operation is genuinely unbound in this model.
+    let Some(stack) = real_stack() else {
+        return;
+    };
+    if !bytecode_present("register") {
+        eprintln!("skipping: register bytecode not compiled");
+        return;
+    }
+    let request = real_request(&vector("register-valid-001"));
+    let response = stack
+        .service
+        .prove(&request)
+        .expect("prove must succeed for a valid witness");
+    assert!(
+        response.public_outputs.get("root_hi").is_none(),
+        "register must expose no root words"
+    );
+    let outcome = stack
+        .verifier
+        .verify(&VerificationRequest::from_response(&response))
+        .expect("verify must run");
+    assert!(outcome.verified);
 }
 
 /// Bumps one hex digit without ever producing a leading zero (so the result

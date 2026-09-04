@@ -218,6 +218,9 @@ pub enum WitnessError {
         /// The operation being requested.
         operation: Operation,
     },
+    /// The request's root-half public inputs disagree with its state root.
+    #[error("public root halves do not match the state reference root")]
+    StateRootMismatch,
     /// A value-level problem with the witness or inputs.
     #[error(transparent)]
     InvalidValue(#[from] crate::circuit::FieldError),
@@ -305,6 +308,21 @@ impl ProofRequest {
             return Err(WitnessError::MissingStateReference {
                 operation: self.operation,
             });
+        }
+        // When the request exposes the state root halves as public inputs
+        // (state-bound circuits), they must equal the halves of the state
+        // reference's root: the Prover.toml is written from the public bag,
+        // so a drift here would produce a proof for a root the request does
+        // not actually claim.
+        if let (Some(state), Some(hi), Some(lo)) = (
+            &self.state_reference,
+            self.public_inputs.get("root_hi"),
+            self.public_inputs.get("root_lo"),
+        ) {
+            let (expected_hi, expected_lo) = state.root_halves();
+            if hi != &expected_hi || lo != &expected_lo {
+                return Err(WitnessError::StateRootMismatch);
+            }
         }
         Ok(())
     }

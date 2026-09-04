@@ -289,10 +289,11 @@ fn transfer_proof_binds_token_address_and_reports_outputs() {
     let solved = solve("transfer", &vector, &nargo);
     let (artifacts, _dir) = prove_bundle(&bb, &solved);
 
-    // transfer's public surface: 4 public params (token, sender, recipient,
-    // old commitment) followed by the 3 returned commitments/nullifier.
+    // transfer's public surface: 6 public params (token, sender, recipient,
+    // old commitment, root_hi, root_lo) followed by the 3 returned
+    // commitments/nullifier — 9 words total.
     let words = &artifacts.public_inputs.public_inputs;
-    assert_eq!(words.len(), 7, "transfer exposes 7 public input words");
+    assert_eq!(words.len(), 9, "transfer exposes 9 public input words");
 
     let token = vector
         .witness
@@ -305,6 +306,13 @@ fn transfer_proof_binds_token_address_and_reports_outputs() {
         "first public input is the token address"
     );
 
+    // Words 4 and 5 are the state-root halves the circuit commits to; the
+    // fixture's state root split in half must match them exactly.
+    let state = vector.state_reference.as_ref().expect("transfer is state-bound");
+    let (hi, lo) = state.root_halves();
+    assert_eq!(canonical(&words[4]), canonical(hi.as_hex()));
+    assert_eq!(canonical(&words[5]), canonical(lo.as_hex()));
+
     // The final three words are the return tuple in order: recipient
     // commitment, change commitment, nullifier.
     let expected: Vec<String> = vector
@@ -315,10 +323,10 @@ fn transfer_proof_binds_token_address_and_reports_outputs() {
     assert_eq!(expected.len(), 3, "transfer returns three outputs");
     for (i, (name, value)) in vector.expected_public_outputs.iter().enumerate() {
         assert_eq!(
-            canonical(&words[4 + i]),
+            canonical(&words[6 + i]),
             canonical(value.as_hex()),
             "public input word {} must be the `{name}` output",
-            4 + i
+            6 + i
         );
     }
 

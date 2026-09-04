@@ -18,14 +18,23 @@
 //! (wrong circuit/version/key/artifact) are detected structurally before bb
 //! runs, mirroring how the mock reports them.
 //!
-//! # Known limitation (state binding)
+//! # State binding
 //!
-//! The current circuits do not commit to a state root, so the submitted
-//! [`crucible_interfaces::StateReference`] is recorded as repository-level
-//! context but is **not** yet cryptographically bound. Stale-state and
-//! replay rejections for real proofs require circuits that fold the state
-//! root into the public inputs; until then the mock remains the authority
-//! for that specific guarantee.
+//! The state-bound circuits (merge/transfer/withdraw) take the two halves
+//! of the ledger state root as public parameters and fold them into the
+//! emitted nullifier, so the proof bytes themselves commit to the root.
+//! Verification enforces binding at two layers, mirroring the mock:
+//!
+//! 1. **Structural** — the submitted [`crucible_interfaces::StateReference`]
+//!    must agree with the `root_hi`/`root_lo` words the proof committed to
+//!    (checked before bb runs, giving a precise `StateReferenceMismatch` /
+//!    `MissingStateBinding` reason);
+//! 2. **Cryptographic** — a submission that rewrites the root words to a
+//!    different root fails `bb verify`, because the proof was cut for the
+//!    original root.
+//!
+//! Register and deposit circuits remain unbound (no root params), so their
+//! proofs carry no root words and no state check applies.
 
 use crucible_interfaces::{
     BackendId, ProofBlob, VerificationFailure, VerificationOutcome, VerificationRequest, Verifier,
@@ -126,7 +135,35 @@ impl Verifier for UltraHonkVerifier {
             ));
         }
 
-        // 5. Rebuild the backend artifact files in a scratch dir and let bb
+        // 5. State binding (state-bound circuits). The provider names every
+        //    public-input word from the pinned circuit surface, so a proof
+        //    for a state-bound operation always carries `root_hi`/`root_lo`
+        //    — the two halves of the ledger root the circuit committed to.
+        //    Mirroring the mock, a submission whose state reference disagrees
+        //    with those committed words is stale or replayed, rejected
+        //    structurally before any cryptography runs. If the submitter also
+        //    rewrote the words themselves, bb rejects the tamper below.
+        if let (Some(root_hi), Some(root_lo)) = (
+            request.public_outputs.get("root_hi"),
+            request.public_outputs.get("root_lo"),
+        ) {
+            let state = match &request.state_reference {
+                Some(state) => state,
+                None => {
+                    return Ok(VerificationOutcome::rejected(
+                        VerificationFailure::MissingStateBinding,
+                    ));
+                }
+            };
+            let (hi, lo) = state.root_halves();
+            if root_hi != &hi || root_lo != &lo {
+                return Ok(VerificationOutcome::rejected(
+                    VerificationFailure::StateReferenceMismatch,
+                ));
+            }
+        }
+
+        // 6. Rebuild the backend artifact files in a scratch dir and let bb
         //    decide. The submitted public outputs are the words bb checks
         //    the proof against, so a changed output fails here, cryptographically.
         let bb = match BbToolchain::locate() {
