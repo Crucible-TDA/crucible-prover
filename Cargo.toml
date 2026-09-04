@@ -14,8 +14,9 @@ members = [
     "cli",
     "tests",
     "benches",
+    "examples",
 ]
-default-members = ["interfaces", "crates/proof-types", "crates/witness", "crates/artifacts", "crates/mock", "crates/prover-core", "crates/verifier", "crates/noir", "crates/ultrahonk", "crates/vectors", "cli", "tests", "benches"]
+default-members = ["interfaces", "crates/proof-types", "crates/witness", "crates/artifacts", "crates/mock", "crates/prover-core", "crates/verifier", "crates/noir", "crates/ultrahonk", "crates/vectors", "cli", "tests", "benches", "examples"]
 
 [workspace.package]
 version = "0.1.0"

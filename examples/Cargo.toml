@@ -1,0 +1,28 @@
+[package]
+name = "crucible-examples"
+description = "Runnable end-to-end demonstrations of the crucible-prover pipeline (mock backend, no toolchain)"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+publish = false
+
+[[bin]]
+name = "end-to-end"
+path = "end_to_end.rs"
+
+[[bin]]
+name = "prove-verify"
+path = "prove_verify.rs"
+
+[dependencies]
+crucible-interfaces = { path = "../interfaces" }
+crucible-mock = { path = "../crates/mock" }
+crucible-proof-types = { path = "../crates/proof-types" }
+crucible-prover-core = { path = "../crates/prover-core" }
+crucible-vectors = { path = "../crates/vectors" }
+
+[lints]
+workspace = true
