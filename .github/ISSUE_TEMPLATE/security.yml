@@ -1,0 +1,36 @@
+name: Security
+description: Do NOT file vulnerabilities here — report privately per SECURITY.md
+labels: ["security"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Found a vulnerability?
+
+        **Do not open a public issue.** This repository handles witness and
+        verification-key material; follow the disclosure process in
+        [SECURITY.md](../../SECURITY.md) to report privately.
+
+        Use this template only for **defense-in-depth improvements** that are
+        not vulnerability reports: hardening, test coverage for an attack in
+        the threat model, or a new invariant worth pinning.
+  - type: textarea
+    id: summary
+    attributes:
+      label: What hardening is needed?
+      description: The attack or leak channel from docs/threat-model.md / docs/security.md, or the gap in coverage.
+    validations:
+      required: true
+  - type: textarea
+    id: coverage
+    attributes:
+      label: Existing coverage
+      description: Which security test, invariant, or mechanism already addresses this, if any?
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Definition of done
+      options:
+        - label: No private witness value can appear in logs, errors, or output
+        - label: Regression pinned in the security suite (tests/tests/security/)
+        - label: Threat-model doc updated if the defense changes assumptions

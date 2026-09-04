@@ -1,0 +1,36 @@
+name: Verifier
+description: Something about verification — a Verifier implementation, the VerificationService, or cross-verifier agreement
+title: "verifier: "
+labels: ["verifier"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Verification is dispatched by backend through the `Verifier` trait; local and
+        on-chain verifiers must be able to disagree loudly. Local verification and
+        Soroban verification must never be assumed equivalent without a test.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What verifier, and what is wrong or missing?
+    validations:
+      required: true
+  - type: input
+    id: backend
+    attributes:
+      label: Backend / registration label
+      description: e.g. mock, ultrahonk (local), soroban (design)
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction
+      description: The proof context (envelope file, vector id) and the observed vs expected outcome.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Definition of done
+      options:
+        - label: Rejections carry the structured failure reason (wrong key, tampered proof, stale state, …)
+        - label: Multi-verifier disagreement is surfaced, not hidden
+        - label: Covered by a verification or security test

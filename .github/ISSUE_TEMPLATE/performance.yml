@@ -1,0 +1,29 @@
+name: Performance
+description: Constraint counts, proving time, verification time, or memory regressions
+title: "perf: "
+labels: ["performance"]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: What is slow or too large?
+      description: The operation/gadget, the measured quantity (constraints, prove ms, verify ms, proof bytes), and the target.
+    validations:
+      required: true
+  - type: textarea
+    id: numbers
+    attributes:
+      label: Numbers
+      description: Before/after `nargo info`, `benchmark`, or benches output — paste the lines.
+  - type: textarea
+    id: env
+    attributes:
+      label: Environment
+      description: Toolchain versions (nargo, bb), machine, and backend (mock/ultrahonk).
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Definition of done
+      options:
+        - label: Regression reproducible from a committed vector or bench
+        - label: No correctness or privacy trade-off hidden in the speed-up

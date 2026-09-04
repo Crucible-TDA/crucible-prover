@@ -1,0 +1,40 @@
+name: Prover
+description: Something about proof generation — witness assembly, a ProofProvider, or prover-core orchestration
+title: "prover: "
+labels: ["prover"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Proving runs through the `ProofProvider` trait; backends (mock, ultrahonk)
+        must stay behind that seam. Say which layer you are talking about.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What breaks or is missing in the proving path?
+    validations:
+      required: true
+  - type: input
+    id: backend
+    attributes:
+      label: Backend
+      description: mock, ultrahonk, or trait-level (backend-agnostic)
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction
+      description: Operation, vector id, backend, and the failing command or test name.
+  - type: textarea
+    id: privacy
+    attributes:
+      label: Privacy impact
+      description: Does this touch witness material? Confirm no private value would appear in logs, errors, or output.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Definition of done
+      options:
+        - label: Request/response fields versioned through interfaces
+        - label: Round-trip verification honored (no proof returned that fails its own check)
+        - label: Covered by a security or integration test where relevant

@@ -1,0 +1,42 @@
+name: Circuit
+description: Something about the Noir circuits (circuits/) or the pinned artifacts built from them
+title: "circuits: "
+labels: ["circuits"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for opening a circuit issue. The circuits encode the *shape* of the
+        Confidential Token operations; before changing a circuit, confirm the change
+        is not actually a pinning task (`artifacts generate`) or a spec-alignment
+        question tracked in docs/noir.md.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What circuit or gadget, and what behavior is wrong or missing?
+    validations:
+      required: true
+  - type: textarea
+    id: witness
+    attributes:
+      label: Public / witness boundary
+      description: Which inputs are public, which are private, and what should the circuit prove? Paste the proposed main() signature if you have one.
+  - type: textarea
+    id: testdata
+    attributes:
+      label: Vector impact
+      description: Which committed test vectors, testdata/Prover.toml files, or expected outputs change? Note that stale pinned artifacts fail CI via the fresh-compile gate.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Definition of done
+      options:
+        - label: Circuit change lands with updated Noir tests (`nargo test`)
+        - label: Pinned artifacts regenerated (`crates` compile + `artifacts generate`)
+        - label: Catalog vectors and expected outputs updated and green
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Constraint counts (`nargo info`), related issues, spec references.

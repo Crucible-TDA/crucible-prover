@@ -1,0 +1,36 @@
+name: Test vector
+description: A missing, wrong, or ambiguous entry in the cross-language catalog under test-vectors/
+title: "test-vector: "
+labels: ["test-vectors"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Vectors are judged by two tiers: the mock tier (well-formedness + round-trip)
+        and the circuit tier (real nargo solving against the circuits). Both must agree
+        with the vector's `expect_verification`. See docs/test-vectors.md.
+  - type: textarea
+    id: summary
+    attributes:
+      label: What vector scenario is missing or wrong?
+      description: Operation, category (valid / wrong-owner / insufficient-balance / invalid / …), and why it matters.
+    validations:
+      required: true
+  - type: textarea
+    id: witness
+    attributes:
+      label: Witness sketch
+      description: Public entries, private values, expected outputs, and state root (values in canonical lowercase hex).
+  - type: textarea
+    id: tiers
+    attributes:
+      label: Tier expectations
+      description: Should this witness solve (expect_verification=true) or fail to solve? Which tier would catch a regression?
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Definition of done
+      options:
+        - label: JSON matches schemas/test-vector.schema.json (check-schemas.py passes)
+        - label: Expected outputs captured from a real nargo execute run
+        - label: Both runner tiers green (`cargo test -p crucible-tests --test vectors`)

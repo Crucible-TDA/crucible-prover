@@ -1,0 +1,25 @@
+name: Documentation
+description: A docs gap, a stale claim, or a missing design document
+title: "docs: "
+labels: ["documentation"]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: What is wrong or missing?
+      description: Which doc (docs/*.md, README, circuits/README, crate docs) and what claim or gap?
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: The stale quote or the reader question that sent you here.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Definition of done
+      options:
+        - label: Claims match the tree (paths, commands, versions)
+        - label: Doc links resolve to existing files
+        - label: Cross-referenced from the relevant crate docstring where useful
