@@ -1,0 +1,20 @@
+[package]
+name = "crucible-ultrahonk"
+description = "UltraHonk backend knowledge: proof format, verification-key identity, and calldata public-input encoding"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+keywords.workspace = true
+categories.workspace = true
+
+[dependencies]
+crucible-interfaces = { path = "../../interfaces" }
+thiserror.workspace = true
+hex.workspace = true
+sha2.workspace = true
+
+[lints]
+workspace = true

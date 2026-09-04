@@ -107,6 +107,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "crucible-ultrahonk"
+version = "0.1.0"
+dependencies = [
+ "crucible-interfaces",
+ "hex",
+ "sha2",
+ "thiserror",
+]
+
+[[package]]
 name = "crucible-verifier"
 version = "0.1.0"
 dependencies = [
