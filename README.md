@@ -33,25 +33,36 @@ proving infrastructure for Crucible.
 ## Layout
 
 ```text
-interfaces/    Stable contracts: ProofProvider/Verifier traits, requests, circuit ids
-crates/        prover-core, proof-types, witness, artifacts, noir, ultrahonk,
-               verifier, mock
-adapters/      Bridges to the simulator, Soroban, and a testnet
+interfaces/    Stable contracts: ProofProvider/Prover/Verifier traits,
+               requests/responses, circuit ids, expectations spec
+crates/        prover-core, proof-types, witness, artifacts, noir,
+               ultrahonk, verifier, mock, vectors
 circuits/      The Noir workspace (shared lib, register/deposit/merge/transfer/
                withdraw circuits, measurement gadgets)
-artifacts/     Pinned compiled circuits + manifests (proving input), VK store
-test-vectors/  Valid/invalid vectors per operation (cross-language fixtures)
+artifacts/     Pinned compiled circuits + manifests (the proving input),
+               runtime verification-key store
+test-vectors/  Cross-language vectors per operation (valid + reject categories)
 schemas/       JSON schemas for proofs, requests, witnesses, artifacts
-proofs/        Proof fixtures and serialization compatibility material
-tests/         Unit, circuit, proof, verification, security, invariant suites
+proofs/        Committed proof-envelope fixtures + serialization material
+tests/         Cross-crate security/invariant/verification/live suites
+benches/       In-process pipeline benchmarks (toolchain-free)
+examples/      Runnable end-to-end demos (mock backend)
 cli/           Orchestration CLI (no proving logic)
 docs/          Architecture and design documents
-scripts/       Toolchain setup, circuit checks, vector generation
+scripts/       Toolchain setup, gates, and regeneration scripts
 ```
 
 ## Status
 
-Under active construction. The canonical end-to-end flow is:
+The full proving pipeline is implemented and green in CI: interfaces and
+wire types, witness and artifact management, mock and UltraHonk backends
+proving only from manifest-pinned artifacts, state-bound circuits,
+prover-core orchestration, cross-verifier agreement, the vector catalog,
+committed proof fixtures, benchmarks, examples, and the `crucible-prover`
+CLI (whose binary is attached to tagged releases). The mock backend is
+TEST ONLY and not cryptographically secure.
+
+The canonical end-to-end flow is:
 
 ```text
 simulator state ─▶ witness builder ─▶ Noir circuit ─▶ ACIR
@@ -59,8 +70,13 @@ simulator state ─▶ witness builder ─▶ Noir circuit ─▶ ACIR
 ```
 
 Backends plug into the `ProofProvider` interface so the simulator and the
-scenario suites never couple to UltraHonk — or to the `mock` prover used in
-CI, which is **TEST ONLY and NOT cryptographically secure**.
+scenario suites never couple to UltraHonk — or to the mock prover used in
+CI.
+
+Open workstreams (designed, not yet built): Soroban on-chain
+verification, Merkle membership for consumed commitments, the simulator
+adapter, and the optional testnet layer — see `docs/soroban-verification.md`,
+`docs/simulator-integration.md`, and `docs/testnet.md`.
 
 ## Development
 
@@ -75,29 +91,37 @@ Noir (circuits) is a separate toolchain; see `scripts/setup-noir.sh` and
 
 ## Documentation
 
-- [`docs/architecture.md`](docs/architecture.md) — layers, boundaries, and
-  the dependency rules that keep the repos decoupled
-- [`docs/proving-model.md`](docs/proving-model.md) — requests, providers,
-  binding, and the mock backend
-- [`docs/proof-lifecycle.md`](docs/proof-lifecycle.md) — the stages every
-  proof passes through and their failure modes
-- [`docs/security.md`](docs/security.md) — guarantees, mechanisms, and
-  privacy rules for contributors
-- [`docs/threat-model.md`](docs/threat-model.md) — adversaries, attacks,
-  and the defenses (and tests) that resist them
-- [`docs/circuit-model.md`](docs/circuit-model.md) — the Noir operation
-  circuits, their public/witness boundaries, and measured costs
-- [`docs/noir.md`](docs/noir.md) — Noir toolchain split and the circuit
-  workspace conventions
-- [`docs/ultrahonk.md`](docs/ultrahonk.md) — real UltraHonk proving with
-  the Barretenberg backend: the validated `nargo` × `bb` pairing and live
-  proof coverage
-- [`docs/test-vectors.md`](docs/test-vectors.md) — the cross-language vector
-  catalog and the mock/circuit runner tiers that judge it
-- [`docs/artifacts.md`](docs/artifacts.md) — the pinned-artifact model:
-  manifests, the provider gate, and the CI freshness check
-- [`docs/cli.md`](docs/cli.md) — the `crucible-prover` CLI: circuits,
-  artifacts, prove/verify, and the catalog gate
+**Architecture & lifecycle** — [`docs/architecture.md`](docs/architecture.md)
+(layers, boundaries, dependency rules), [`docs/proving-model.md`](docs/proving-model.md)
+(requests, providers, binding, mock), [`docs/proof-lifecycle.md`](docs/proof-lifecycle.md)
+(stages and failure modes), [`docs/witness-model.md`](docs/witness-model.md)
+(private/public split, encoder), [`docs/public-inputs.md`](docs/public-inputs.md)
+(what proofs bind to), [`docs/proof-format.md`](docs/proof-format.md) (the
+envelope wire format), [`docs/verification.md`](docs/verification.md)
+(verifiers, agreement, round trips).
+
+**Privacy & security** — [`docs/privacy.md`](docs/privacy.md) (structural
+secret handling), [`docs/security.md`](docs/security.md) (guarantees and
+mechanisms), [`docs/threat-model.md`](docs/threat-model.md) (adversaries and
+defenses).
+
+**Circuits & backends** — [`docs/circuit-model.md`](docs/circuit-model.md)
+(operation circuits, boundaries, measured costs), [`docs/noir.md`](docs/noir.md)
+(Noir toolchain split), [`docs/ultrahonk.md`](docs/ultrahonk.md) (real
+UltraHonk proving with `bb`).
+
+**Ops & tooling** — [`docs/cli.md`](docs/cli.md) (full command surface),
+[`docs/artifacts.md`](docs/artifacts.md) (pinned artifacts and the provider
+gate), [`docs/test-vectors.md`](docs/test-vectors.md) (the vector catalog),
+[`docs/performance.md`](docs/performance.md) (what each benchmark measures),
+[`docs/reproducibility.md`](docs/reproducibility.md) (the pin chain),
+[`docs/compatibility.md`](docs/compatibility.md) (versioning policy),
+[`docs/deployment.md`](docs/deployment.md) (releases and production gaps).
+
+**Design & roadmap** — [`docs/simulator-integration.md`](docs/simulator-integration.md)
+(the simulator boundary and adapter design), [`docs/soroban-verification.md`](docs/soroban-verification.md)
+(on-chain verification groundwork), [`docs/testnet.md`](docs/testnet.md)
+(optional testnet execution layer).
 
 ## Quick start (CLI)
 

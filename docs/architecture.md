@@ -26,11 +26,20 @@ crates/
   noir/            nargo CLI adapter (compile/execute/info)
   ultrahonk/       UltraHonk provider/verifier + VK store + calldata encoding
 schemas/           JSON Schema contracts for the wire formats
-scripts/           check.sh / test-all.sh and helpers
+proofs/            committed proof-envelope fixtures (serialization pins)
+benches/           in-process pipeline benchmarks (toolchain-free)
+examples/          runnable end-to-end demos (mock backend)
+scripts/           check.sh / test-all.sh, gates, and regeneration helpers
 docs/              this and the other architecture docs
-circuits/          Noir circuit workspace (arrives with the circuits batch)
-tests/             cross-crate security/invariant suite (this batch)
+circuits/          Noir circuit workspace (shared lib, five ops, gadgets)
+tests/             cross-crate security/invariant/live suites
 ```
+
+`adapters/` (simulator, Soroban, testnet bridges) is intentionally absent:
+the seams it will implement live in `interfaces/`, and the concrete
+adapters land with their sibling repos and workstreams (see
+`docs/simulator-integration.md`, `docs/soroban-verification.md`,
+`docs/testnet.md`).
 
 ## The canonical flow
 
@@ -148,7 +157,10 @@ pathological transitions?*
 `main` carries the full proving pipeline: interfaces and wire types,
 witness and artifact management, the mock and UltraHonk backends with
 manifest-pinned artifacts, prover-core orchestration, the verification
-service, the Noir circuits with cryptographic state binding, the
-cross-language vector catalog, and the `crucible-prover` CLI. Soroban
-on-chain verification, Merkle membership for consumed commitments, and
-the testnet adapter remain open workstreams on top of these seams.
+service (with cross-verifier agreement), the Noir circuits with
+cryptographic state binding, the cross-language vector catalog,
+committed proof fixtures, benchmarks, examples, and the
+`crucible-prover` CLI. Soroban on-chain verification, Merkle membership
+for consumed commitments, the simulator adapter, and the testnet
+adapter remain designed-but-unbuilt workstreams on top of these seams
+(see the roadmap docs).
